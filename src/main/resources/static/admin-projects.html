@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projects | Dynamic Dudes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/styles.css">
+</head>
+<body class="admin-dashboard">
+<div class="app-shell"><aside class="sidebar"><a class="brand" href="/admin.html"><span class="brand-mark">D</span><span>Dynamic <span class="brand-muted">Dudes</span></span></a><nav class="side-nav"><a href="/admin.html"><span>⌂</span>Dashboard</a><a href="/admin-customers.html"><span>♙</span>Customers</a><a class="active" href="/admin-projects.html"><span>▦</span>Projects</a><a href="/admin-reports.html"><span>▥</span>Reports</a><a href="/admin-profile.html"><span>◉</span>Admin Profile</a></nav><a class="side-logout" href="/logout"><span>↪</span>Logout</a></aside>
+<main class="dashboard-main"><header class="dashboard-header"><div><p class="overline">Project management</p><h1>Project Status</h1><p class="subtitle">Update a project's progress from pending to in progress or completed.</p></div><button id="refresh" class="button secondary" type="button">↻ Refresh</button></header>
+<section class="directory-card"><p id="message" class="feedback"></p><div class="table-scroll"><table class="customer-table project-table"><thead><tr><th>Project</th><th>Customer</th><th>Budget</th><th>Paid</th><th>Due date</th><th>Status</th></tr></thead><tbody id="projects"><tr><td colspan="6" class="empty-state">Loading projects...</td></tr></tbody></table></div></section></main></div>
+<script>
+const tbody=document.getElementById("projects"),message=document.getElementById("message"),money=new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:0});let projects=[];
+function escapeHtml(v){return String(v??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
+function formatDate(v){if(!v)return "—";const d=new Date(v);return Number.isNaN(d.getTime())?String(v):d.toLocaleDateString("en-GB");}
+function render(){tbody.innerHTML=projects.length?projects.map(p=>{const budget=Number(p.budget||p.amount||0),paid=Number(p.advanceAmount||0);return `<tr><td><strong>${escapeHtml(p.title)}</strong><small>${escapeHtml(p.category||"")}</small></td><td>${escapeHtml(p.assignedCustomerName||"Unknown customer")}</td><td>${money.format(budget)}</td><td>${money.format(paid)}</td><td>${formatDate(p.dueDate)}</td><td><select class="status-select" data-id="${p.id}"><option value="PENDING" ${p.status==="PENDING"?"selected":""}>Pending</option><option value="IN_PROGRESS" ${p.status==="IN_PROGRESS"?"selected":""}>In Progress</option><option value="COMPLETED" ${p.status==="COMPLETED"?"selected":""}>Completed</option></select></td></tr>`}).join(""): '<tr><td colspan="6" class="empty-state">No projects found.</td></tr>';
+document.querySelectorAll(".status-select").forEach(s=>s.onchange=()=>updateStatus(Number(s.dataset.id),s.value));}
+async function csrf(){const r=await fetch("/api/auth/csrf");if(!r.ok)throw new Error("Unable to authorize this admin action.");const d=await r.json();return d.token;}
+async function load(){message.textContent="";message.classList.remove("error-message");try{const r=await fetch("/api/admin/projects");if(!r.ok){location.href="/admin-login.html";return;}projects=await r.json();render();}catch(e){message.textContent="Projects could not be loaded.";message.classList.add("error-message");}}
+async function updateStatus(id,status){try{const token=await csrf();const r=await fetch(`/api/admin/projects/${id}/status`,{method:"PUT",headers:{"Content-Type":"application/json","X-XSRF-TOKEN":token},body:JSON.stringify({status})});if(!r.ok){let b={};try{b=await r.json()}catch{}throw new Error(b.message||"Unable to update project status.");}const updated=await r.json();projects=projects.map(p=>p.id===updated.id?updated:p);render();message.textContent=`Project status changed to ${status.replace("_"," ")}.`;}catch(e){message.textContent=e.message;message.classList.add("error-message");render();}}
+document.getElementById("refresh").onclick=load;load();
+</script>
+<style>.status-select{padding:9px 30px 9px 10px;border:1px solid var(--border);border-radius:9px;background:#fff;font:inherit;font-size:.76rem;color:var(--dashboard-text)}</style>
+</body></html>

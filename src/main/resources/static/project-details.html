@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Details | Dynamic Dudes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body class="customer-page">
+<div class="app-shell">
+<aside class="sidebar"><a class="brand" href="/dashboard.html"><span class="brand-mark">D</span><span>Dynamic <span class="brand-muted">Dudes</span></span></a><nav class="side-nav"><a href="/dashboard.html"><span>⌂</span>Dashboard</a><a class="active" href="/projects.html"><span>▦</span>My Projects</a><a href="/register-project.html"><span>＋</span>Register Project</a><a href="/profile.html"><span>◉</span>My Profile</a><a href="/payment.html"><span>₹</span>Payments</a></nav><a class="side-logout" href="/logout"><span>↪</span>Logout</a></aside>
+<main class="portal-main narrow">
+<a class="back-link" href="/projects.html">← Back to projects</a>
+<section id="details" class="portal-card project-detail-card"><p class="loading-state">Loading project...</p></section>
+</main>
+</div>
+<script src="/js/date-utils.js"></script>
+<script>
+const money=new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:0});
+const id=new URLSearchParams(location.search).get("id");
+const details=document.getElementById("details");
+if(!id){details.innerHTML='<p class="error-message">No project was selected.</p>';}else{
+fetch(`/api/customer/projects/${encodeURIComponent(id)}`).then(r=>{if(!r.ok)throw new Error();return r.json();}).then(project=>{
+const budget=Number(project.budget||project.amount||0), advance=Number(project.advanceAmount||0), percent=Math.min(100,budget?Math.round(advance/budget*100):0), remaining=Math.max(0,budget-advance);
+const status=String(project.status||"PENDING");
+details.innerHTML=`
+<div class="project-detail-head"><div><p class="overline">${escapeHtml(project.category||"Project")}</p><h1>${escapeHtml(project.title||"Untitled project")}</h1></div><b class="project-status ${status.toLowerCase().replace("_","-")}">${escapeHtml(status.replaceAll("_"," "))}</b></div>
+<p class="project-description">${escapeHtml(project.report||"No additional requirements provided.")}</p>
+<div class="detail-meta"><div><span>Registered</span><strong>${formatDate(project.registeredAt)||"Not recorded"}</strong></div><div><span>Due date</span><strong>${formatDate(project.dueDate)||"Not set"}</strong></div><div><span>Payment</span><strong>${project.lastPaymentDate?formatDate(project.lastPaymentDate):"No payment yet"}</strong></div></div>
+<div class="timeline"><span class="done">✓ <b>Project Registered</b></span><span class="done">✓ <b>Project Accepted</b></span><span class="${status==="IN_PROGRESS"||status==="COMPLETED"?"done":""}">● <b>Work in progress</b></span><span class="${status==="COMPLETED"?"done":""}">○ <b>Completed</b></span></div>
+<div class="financial-values"><div><span>Budget</span><strong>${money.format(budget)}</strong></div><div><span>Paid</span><strong>${money.format(advance)}</strong></div><div><span>Remaining</span><strong>${money.format(remaining)}</strong></div></div>
+<div class="payment-track"><span style="width:${percent}%"></span></div>
+<div class="modal-actions" style="margin-top:24px"><a class="button secondary" href="/projects.html">Back</a>${remaining>0&&status!=="COMPLETED"?`<a class="button" href="/payment.html?projectId=${project.id}">Make Payment</a>`:""}</div>`;
+}).catch(()=>{details.innerHTML='<p class="error-message">Project could not be found or is no longer available.</p>';});}
+function escapeHtml(value){return String(value??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
+</script>
+</body></html>

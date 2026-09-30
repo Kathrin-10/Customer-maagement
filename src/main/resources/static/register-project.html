@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register Project | Dynamic Dudes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body class="customer-page">
+<div class="app-shell">
+<aside class="sidebar">
+<a class="brand" href="/dashboard.html"><span class="brand-mark">D</span><span>Dynamic <span class="brand-muted">Dudes</span></span></a>
+<nav class="side-nav">
+<a href="/dashboard.html"><span>⌂</span>Dashboard</a>
+<a href="/projects.html"><span>▦</span>My Projects</a>
+<a class="active" href="/register-project.html"><span>＋</span>Register Project</a>
+<a href="/profile.html"><span>◉</span>My Profile</a><a href="/payment.html"><span>₹</span>Payments</a>
+</nav><a class="side-logout" href="/logout"><span>↪</span>Logout</a>
+</aside>
+
+<main class="portal-main narrow">
+<div class="portal-page-title"><p class="overline">Start something new</p><h1>Register a Project</h1><p class="subtitle">Complete one step at a time. You can go back before submitting.</p></div>
+<section class="portal-card project-form-card">
+<div class="wizard-steps" id="wizardSteps">
+<button type="button" class="wizard-step active" data-step="1">1 <b>Project details</b></button>
+<button type="button" class="wizard-step" data-step="2">2 <b>Requirements</b></button>
+<button type="button" class="wizard-step" data-step="3">3 <b>Budget &amp; deadline</b></button>
+</div>
+<p id="formMessage" class="feedback"></p>
+
+<form id="projectForm" novalidate>
+<section class="wizard-panel active" data-panel="1">
+<label>Project title<input id="title" required maxlength="200" placeholder="e.g. E-commerce website"></label>
+<label>Category<select id="category" required><option value="">Choose a service</option><option>Website Designing</option><option>App Designing</option><option>SEO</option><option>Social Media Management</option><option>Video Editing</option><option>Photo Editing</option><option>Poster Making</option><option>AI Ad Video Creation</option><option>Promo Videos</option><option>Other</option></select></label>
+<div class="modal-actions"><a class="button secondary" href="/projects.html">Cancel</a><button class="button" type="button" id="next1">Next: Requirements</button></div>
+</section>
+
+<section class="wizard-panel" data-panel="2" hidden>
+<label>Requirements<textarea id="requirements" rows="9" maxlength="5000" placeholder="Tell us about your goals, features, content, references, and other requirements"></textarea></label>
+<div class="modal-actions"><button class="button secondary" type="button" id="back2">Back</button><button class="button" type="button" id="next2">Next: Budget &amp; Deadline</button></div>
+</section>
+
+<section class="wizard-panel" data-panel="3" hidden>
+<div class="form-grid">
+<label>Due date<div class="date-input-wrapper"><input id="dueDate" type="text" inputmode="numeric" maxlength="10" placeholder="DD/MM/YYYY" autocomplete="off" required><button type="button" id="calendarButton" class="calendar-button" aria-label="Select due date" title="Select date">📅</button><input id="calendarDate" type="date" tabindex="-1" aria-hidden="true"></div><small>Enter DD/MM/YYYY or select from the calendar.</small></label>
+<label>Budget<input id="budget" type="number" min="1" step="0.01" required placeholder="₹"></label>
+</div>
+<div class="portal-card" style="margin-top:22px;background:#f8fafc;box-shadow:none;border:1px solid var(--border);"><p class="overline">Review</p><h2 id="reviewTitle">Project</h2><p id="reviewCategory">Category</p><p id="reviewRequirements">Requirements</p><p id="reviewBudget">Budget</p><p id="reviewDueDate">Due date</p></div>
+<div class="modal-actions"><button class="button secondary" type="button" id="back3">Back</button><button class="button" type="submit">Submit Project</button></div>
+</section>
+</form>
+</section>
+</main></div>
+
+<script>
+const panels = [...document.querySelectorAll(".wizard-panel")];
+const steps = [...document.querySelectorAll(".wizard-step")];
+const form = document.getElementById("projectForm");
+const message = document.getElementById("formMessage");
+let currentStep = 1;
+const today = new Date(); today.setHours(0,0,0,0);
+const todayBackend = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
+const calendar = document.getElementById("calendarDate"); calendar.min = todayBackend;
+
+function showStep(step) {
+    currentStep = step;
+    panels.forEach(panel => { const active = Number(panel.dataset.panel) === step; panel.hidden = !active; panel.classList.toggle("active", active); });
+    steps.forEach(button => button.classList.toggle("active", Number(button.dataset.step) === step));
+    if (step === 3) updateReview();
+    window.scrollTo({top:0, behavior:"smooth"});
+}
+function validStep(step) {
+    const ids = step === 1 ? ["title","category"] : step === 2 ? ["requirements"] : ["dueDate","budget"];
+    for (const id of ids) { const el = document.getElementById(id); if (!el.reportValidity()) return false; }
+    if (step === 3) { try { convertDateToBackendFormat(document.getElementById("dueDate").value.trim()); } catch(e) { message.textContent=e.message; message.classList.add("error-message"); return false; } }
+    return true;
+}
+
+document.getElementById("next1").onclick = () => { if (validStep(1)) showStep(2); };
+document.getElementById("back2").onclick = () => showStep(1);
+document.getElementById("next2").onclick = () => { if (validStep(2)) showStep(3); };
+document.getElementById("back3").onclick = () => showStep(2);
+steps.forEach(button => button.onclick = () => { const target=Number(button.dataset.step); if (target < currentStep) showStep(target); });
+
+function updateReview() {
+    document.getElementById("reviewTitle").textContent = document.getElementById("title").value || "Project";
+    document.getElementById("reviewCategory").textContent = `Category: ${document.getElementById("category").value || "Not selected"}`;
+    document.getElementById("reviewRequirements").textContent = `Requirements: ${document.getElementById("requirements").value.trim() || "None provided"}`;
+    document.getElementById("reviewBudget").textContent = `Budget: ₹${Number(document.getElementById("budget").value || 0).toLocaleString("en-IN")}`;
+    document.getElementById("reviewDueDate").textContent = `Due date: ${document.getElementById("dueDate").value || "Not set"}`;
+}
+
+function convertDateToBackendFormat(value) {
+    const parts=value.split("/");
+    if(parts.length!==3 || parts[0].length!==2 || parts[1].length!==2 || parts[2].length!==4) throw new Error("Please enter the due date as DD/MM/YYYY.");
+    const day=Number(parts[0]), month=Number(parts[1]), year=Number(parts[2]);
+    const date=new Date(year,month-1,day); date.setHours(0,0,0,0);
+    if(date.getFullYear()!==year || date.getMonth()!==month-1 || date.getDate()!==day) throw new Error("Please enter a valid date.");
+    if(date < today) throw new Error("Due date cannot be in the past.");
+    return `${year}-${String(month).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+}
+
+document.getElementById("calendarButton").onclick = () => { if (typeof calendar.showPicker === "function") calendar.showPicker(); else calendar.click(); };
+calendar.onchange = () => { if(calendar.value){const [y,m,d]=calendar.value.split("-");document.getElementById("dueDate").value=`${d}/${m}/${y}`;} };
+document.getElementById("dueDate").oninput = function(){let v=this.value.replace(/\D/g,"").slice(0,8);if(v.length>4)v=`${v.slice(0,2)}/${v.slice(2,4)}/${v.slice(4)}`;else if(v.length>2)v=`${v.slice(0,2)}/${v.slice(2)}`;this.value=v;};
+
+async function csrfHeaders(){const r=await fetch("/api/auth/csrf");if(!r.ok)throw new Error("Unable to verify your session.");const d=await r.json();return {"Content-Type":"application/json","X-XSRF-TOKEN":d.token};}
+form.onsubmit = async event => {
+    event.preventDefault(); message.textContent=""; message.classList.remove("error-message");
+    if(!validStep(3)) return;
+    try {
+        const r=await fetch("/api/customer/projects",{method:"POST",headers:await csrfHeaders(),body:JSON.stringify({title:document.getElementById("title").value.trim(),category:document.getElementById("category").value,requirements:document.getElementById("requirements").value.trim(),dueDate:convertDateToBackendFormat(document.getElementById("dueDate").value.trim()),budget:Number(document.getElementById("budget").value)})});
+        if(!r.ok){let b={};try{b=await r.json();}catch{} throw new Error(Object.values(b.fieldErrors||{})[0]||b.message||"Unable to register project.");}
+        message.textContent="Project registered successfully!";
+        form.reset(); calendar.value=""; calendar.min=todayBackend; showStep(1);
+    } catch(error){message.textContent=error.message;message.classList.add("error-message");}
+};
+</script>
+<style>
+.wizard-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.wizard-step{border:0;background:#f5f7fb;color:#9aa1b2;padding:13px 10px;border-radius:12px;font:inherit;font-size:.76rem;cursor:pointer}.wizard-step.active{background:#eef2ff;color:var(--primary);font-weight:700}.wizard-step b{margin-left:5px;font-weight:600}.wizard-panel{animation:fadeStep .18s ease}.wizard-panel[hidden]{display:none!important}@keyframes fadeStep{from{opacity:.2;transform:translateY(4px)}to{opacity:1;transform:none}}.date-input-wrapper{position:relative}.date-input-wrapper #dueDate{width:100%;padding-right:48px;box-sizing:border-box}.calendar-button{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:36px;height:36px;border:0;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:19px}.calendar-button:hover{opacity:.7}#calendarDate{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}.wizard-panel .modal-actions{margin-top:28px}.wizard-panel .portal-card h2{margin:5px 0}.wizard-panel .portal-card p{color:var(--muted);font-size:.8rem;line-height:1.5;margin:7px 0}
+</style>
+</body></html>

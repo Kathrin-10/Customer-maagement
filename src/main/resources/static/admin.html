@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Management | Administrator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="admin-dashboard">
+<div class="app-shell">
+    <aside class="sidebar">
+        <a class="brand" href="/admin.html"><span class="brand-mark">D</span><span>Dynamic <span class="brand-muted">Dudes</span></span></a>
+        <nav class="side-nav" aria-label="Primary navigation">
+            <a class="active" href="/admin.html"><span>⌂</span>Dashboard</a>
+            <a href="/admin-customers.html"><span>♙</span>Customers</a><a href="/admin-projects.html"><span>▦</span>Projects</a>
+            <a href="/admin-reports.html"><span>▥</span>Reports</a>
+            <a href="/admin-profile.html"><span>◉</span>Admin Profile</a>
+        </nav>
+        <a class="side-logout" href="/logout"><span>↪</span>Logout</a>
+    </aside>
+    <main class="dashboard-main">
+        <header class="dashboard-header">
+            <div><p class="overline">Good morning</p><h1>Administrator</h1><p class="subtitle">Here's what's happening with your customer management system.</p></div>
+            <div class="admin-user"><button class="icon-button" aria-label="Notifications">♢<span class="notification-dot"></span></button><span class="avatar avatar-indigo">AD</span><div><strong>Admin</strong><small>Administrator</small></div></div>
+        </header>
+        <section class="stats-grid" aria-label="Customer statistics">
+            <article class="stat-card"><span class="stat-icon purple">♙</span><div><span class="stat-label">Total Customers</span><strong id="totalCustomers">0</strong><small>Registered customers</small></div></article>
+            <article class="stat-card"><span class="stat-icon green">✓</span><div><span class="stat-label">Active Customers</span><strong id="activeCustomers">0</strong><small>Current project activity</small></div></article>
+            <article class="stat-card"><span class="stat-icon violet">◌</span><div><span class="stat-label">Inactive Customers</span><strong id="inactiveCustomers">0</strong><small>No active work or balance</small></div></article>
+            <article class="stat-card"><span class="stat-icon violet">✦</span><div><span class="stat-label">New Customers</span><strong id="newCustomers">0</strong><small>Registered this month</small></div></article>
+        </section>
+        <section class="activity-card">
+            <div class="section-heading"><div><h2>Customer Activity</h2><p>Project counts from the current project report</p></div><span id="activitySummary" class="trend-badge">Loading report...</span></div>
+            <div class="chart-frame"><div id="activityYAxis" class="activity-y-axis" aria-hidden="true"></div><div id="activityChart" class="activity-chart" aria-label="Monthly project counts chart"></div></div>
+        </section>
+        <section class="dashboard-grid admin-insights">
+            <article class="activity-card"><div class="section-heading"><div><h2>Project Status Summary</h2><p>Current project workload</p></div></div><div id="statusSummary" class="dashboard-summary-list"></div></article>
+            <article class="activity-card"><div class="section-heading"><div><h2>Category Mix</h2><p>Projects by service category</p></div></div><div id="categorySummary" class="dashboard-summary-list"></div></article>
+        </section>
+        <section class="directory-card project-overview-card"><div class="directory-heading"><div><h2>Project Overview</h2><p>Projects currently registered in the system</p></div></div><div class="table-scroll"><table class="customer-table project-table"><thead><tr><th>Project</th><th>Category</th><th>Client</th><th>Due date</th><th>Status</th></tr></thead><tbody id="projectOverview"><tr><td colspan="5" class="empty-state">Loading projects...</td></tr></tbody></table></div></section>
+    </main>
+</div>
+<div id="editModal" class="modal hidden" aria-hidden="true"><div class="modal-card customer-modal"><div class="modal-header"><div><p class="overline">Customer details</p><h2>Edit Customer</h2></div><button id="closeModal" class="close-button" type="button" aria-label="Close">×</button></div>
+<form id="editForm" novalidate><div class="form-grid"><div class="field-group"><label for="fullName">Full name</label><input id="fullName" required maxlength="100"></div><div class="field-group"><label for="email">Email</label><input id="email" type="email" required maxlength="150"></div><div class="field-group"><label for="phoneNumber">Phone</label><input id="phoneNumber" required maxlength="15"></div><div class="field-group"><label for="customerDistrict">District</label><input id="customerDistrict" required maxlength="100"></div><div class="field-group full-width"><label for="address">Address</label><input id="address" maxlength="255"></div></div><p id="modalError" class="error-message"></p><div class="modal-actions"><button id="cancelModal" class="button secondary" type="button">Cancel</button><button class="button" type="submit">Save Changes</button></div></form></div></div>
+<script src="/js/date-utils.js"></script>
+
+
+<script>
+const $ = id =>
+    document.getElementById(id);
+
+const escapeHtml = value =>
+    String(value || "").replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    }[char]));
+
+function renderActivity(monthlyProjectCounts) {
+
+    const chart =
+        $("activityChart");
+
+    const counts =
+        (monthlyProjectCounts || [])
+            .map(entry =>
+                Number(entry.count || 0)
+            );
+
+    const max =
+        Math.max(...counts, 1);
+
+    const step =
+        Math.max(
+            Math.ceil(max / 4),
+            1
+        );
+
+    const axisMax =
+        step * 4;
+
+    const yAxis =
+        $("activityYAxis");
+
+    yAxis.innerHTML =
+        Array.from(
+            { length: 5 },
+            (_, index) =>
+                `<span>${
+                    step * (4 - index)
+                }</span>`
+        ).join("");
+
+    chart.innerHTML =
+        (monthlyProjectCounts || [])
+            .map(entry => `
+                <div class="activity-bar">
+
+                    <span
+                        title="${
+                            entry.count
+                        } projects"
+                        style="height:${
+                            Math.max(
+                                Number(
+                                    entry.count || 0
+                                ) /
+                                axisMax *
+                                100,
+
+                                Number(
+                                    entry.count || 0
+                                )
+                                    ? 8
+                                    : 0
+                            )
+                        }%">
+                    </span>
+
+                    <small>
+                        ${escapeHtml(entry.month)}
+                    </small>
+
+                </div>
+            `)
+            .join("");
+
+    const total =
+        counts.reduce(
+            (sum, count) =>
+                sum + count,
+            0
+        );
+
+    $("activitySummary")
+        .textContent =
+            `${total} project${
+                total === 1 ? "" : "s"
+            } this year`;
+}
+
+function renderReport(
+    report,
+    projects
+) {
+
+    const statuses = [
+        ["completedProjects", "Completed"],
+        ["inProgressProjects", "In Progress"],
+        ["pendingProjects", "Pending"]
+    ];
+
+    $("statusSummary")
+        .innerHTML =
+            statuses
+                .map(([key, label]) => `
+                    <div>
+                        <span>${label}</span>
+                        <strong>
+                            ${report[key] || 0}
+                        </strong>
+                    </div>
+                `)
+                .join("");
+
+    $("categorySummary")
+        .innerHTML =
+            (report.categorySummary || [])
+                .map(item => `
+                    <div>
+                        <span>
+                            ${escapeHtml(
+                                item.category
+                            )}
+                        </span>
+
+                        <strong>
+                            ${item.count}
+                        </strong>
+                    </div>
+                `)
+                .join("");
+
+    $("projectOverview")
+        .innerHTML =
+            projects.length
+
+                ? projects
+                    .slice(0, 12)
+                    .map(project => `
+                        <tr>
+
+                            <td>
+                                <strong>
+                                    ${escapeHtml(
+                                        project.title
+                                    )}
+                                </strong>
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    project.category
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    project.clientName
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    formatDate(
+                                        project.dueDate
+                                    ) ||
+                                    "Not set"
+                                )}
+                            </td>
+
+                            <td>
+                                <span
+                                    class="status-pill ${
+                                        String(
+                                            project.status
+                                        ).toLowerCase()
+                                    }">
+
+                                    <i></i>
+
+                                    ${escapeHtml(
+                                        project.status
+                                    )}
+
+                                </span>
+                            </td>
+
+                        </tr>
+                    `)
+                    .join("")
+
+                : `
+                    <tr>
+                        <td
+                            colspan="5"
+                            class="empty-state">
+                            No projects registered.
+                        </td>
+                    </tr>
+                `;
+}
+
+async function loadDashboard() {
+
+    try {
+
+        const [
+            customerResponse,
+            reportResponse
+        ] = await Promise.all([
+
+            fetch(
+                "/api/admin/customers/report"
+            ),
+
+            fetch(
+                "/api/admin/project-analytics"
+            )
+        ]);
+
+        if (
+            !customerResponse.ok ||
+            !reportResponse.ok
+        ) {
+            throw new Error();
+        }
+
+        const customerReport =
+            await customerResponse.json();
+
+        const report =
+            await reportResponse.json();
+
+        $("totalCustomers")
+            .textContent =
+                customerReport.customerCount || 0;
+
+        $("activeCustomers")
+            .textContent =
+                customerReport.activeCustomers || 0;
+
+        $("inactiveCustomers")
+            .textContent =
+                customerReport.inactiveCustomers || 0;
+
+        $("newCustomers")
+            .textContent =
+                customerReport.newCustomers || 0;
+
+        renderActivity(
+            report.monthlyProjectCounts
+        );
+
+        const projectsResponse =
+            await fetch(
+                "/api/admin/projects"
+            );
+
+        renderReport(
+            report,
+
+            projectsResponse.ok
+                ? await projectsResponse.json()
+                : []
+        );
+
+    } catch (error) {
+
+        $("activitySummary")
+            .textContent =
+                "Report unavailable";
+    }
+}
+
+loadDashboard();
+</script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>My Profile | Dynamic Dudes</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/styles.css"></head>
+<body class="customer-page"><div class="app-shell"><aside class="sidebar"><a class="brand" href="/dashboard.html"><span class="brand-mark">D</span><span>Dynamic <span class="brand-muted">Dudes</span></span></a><nav class="side-nav" aria-label="Primary navigation"><a href="/dashboard.html"><span>⌂</span>Dashboard</a><a href="/projects.html"><span>▦</span>My Projects</a><a href="/register-project.html"><span>＋</span>Register Project</a><a class="active" href="/profile.html"><span>◉</span>My Profile</a><a href="/payment.html"><span>₹</span>Payments</a></nav><a class="side-logout" href="/logout"><span>↪</span>Logout</a></aside><main class="read-only-profile"><p class="overline">Account</p><h1>My Profile</h1><p class="subtitle">Your profile information is managed by the administrator.</p><section class="profile-read-card"><div class="profile-read-header"><span id="profileAvatar" class="avatar avatar-purple avatar-large">—</span><div><h2 id="profileName">Loading profile...</h2><p id="profileRole">Customer</p></div><span id="profileStatus" class="status-pill"><i></i>Active</span></div><dl id="profileDetails" class="profile-read-details"></dl>
+</section>
+</main>
+</div>
+
+<script>
+const detailLabels = {
+    email: "Email",
+    phoneNumber: "Phone",
+    address: "Address",
+    district: "District",
+    role: "Role"
+};
+
+async function loadProfile() {
+
+    try {
+
+        const response =
+            await fetch("/api/customer/profile");
+
+        if (!response.ok) {
+
+            location.href = "/login.html";
+
+            return;
+        }
+
+        const profile =
+            await response.json();
+
+
+        document.getElementById("profileName").textContent =
+            profile.fullName || profile.username;
+
+
+        document.getElementById("profileRole").textContent =
+            profile.role || "Customer";
+
+        document.getElementById("profileStatus").innerHTML =
+            `<i></i>${profile.status || "ACTIVE"}`;
+
+
+        document.getElementById("profileAvatar").textContent =
+            (profile.fullName || "?")
+                .split(/\s+/)
+                .map(part => part[0])
+                .slice(0, 2)
+                .join("")
+                .toUpperCase();
+
+
+        document.getElementById("profileDetails").innerHTML =
+            Object.entries(detailLabels)
+                .map(([key, label]) => `
+                    <div>
+                        <dt>${label}</dt>
+                        <dd>${profile[key] || "Not provided"}</dd>
+                    </div>
+                `)
+                .join("");
+
+    } catch (error) {
+
+        document.getElementById("profileName").textContent =
+            "Profile unavailable";
+    }
+}
+
+loadProfile();
+</script>
+
+</body>
+</html>

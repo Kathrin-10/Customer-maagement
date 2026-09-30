@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customers | Dynamic Dudes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body class="admin-dashboard">
+<div class="app-shell">
+<aside class="sidebar">
+<a class="brand" href="/admin.html"><span class="brand-mark">D</span><span>Dynamic <span class="brand-muted">Dudes</span></span></a>
+<nav class="side-nav">
+<a href="/admin.html"><span>⌂</span>Dashboard</a>
+<a class="active" href="/admin-customers.html"><span>♙</span>Customers</a>
+<a href="/admin-projects.html"><span>▦</span>Projects</a>
+<a href="/admin-reports.html"><span>▥</span>Reports</a>
+<a href="/admin-profile.html"><span>◉</span>Admin Profile</a>
+</nav>
+<a class="side-logout" href="/logout"><span>↪</span>Logout</a>
+</aside>
+
+<main class="dashboard-main">
+<header class="dashboard-header">
+<div><p class="overline">Customer management</p><h1>Customer Directory</h1><p class="subtitle">Active customers are shown here. Inactive accounts remain available below.</p></div>
+</header>
+
+<section class="directory-card">
+<div class="directory-heading">
+<div><h2>Active Customers</h2><p>Customers with current project work or an outstanding project balance.</p></div>
+<div class="directory-tools">
+<label class="search-box"><span>⌕</span><input id="search" type="search" placeholder="Search active customers..." aria-label="Search active customers"></label>
+<button id="refresh" class="button secondary" type="button">↻ <span>Refresh</span></button>
+</div>
+</div>
+<p id="message" class="feedback" role="status"></p>
+<div class="table-scroll"><table class="customer-table"><thead><tr><th>Customer</th><th>Contact</th><th>Address</th><th>Actions</th></tr></thead><tbody id="customers"><tr><td colspan="4" class="empty-state">Loading customers...</td></tr></tbody></table></div>
+</section>
+
+<section class="directory-card" style="margin-top:24px;">
+<div class="directory-heading">
+<div><h2>Inactive Customers</h2><p>Past customers with no unfinished project and no outstanding balance. Their accounts are kept for future projects.</p></div>
+<span id="inactiveCount" class="trend-badge">0 inactive</span>
+</div>
+<div class="table-scroll"><table class="customer-table"><thead><tr><th>Customer</th><th>Contact</th><th>Address</th></tr></thead><tbody id="inactiveCustomers"><tr><td colspan="3" class="empty-state">Loading inactive customers...</td></tr></tbody></table></div>
+</section>
+</main>
+</div>
+
+<div id="editModal" class="modal hidden" aria-hidden="true"><div class="modal-card customer-modal"><div class="modal-header"><div><p class="overline">Customer details</p><h2>Edit Customer</h2></div><button id="closeModal" class="close-button" type="button" aria-label="Close">×</button></div>
+<form id="editForm" novalidate><div class="form-grid"><div class="field-group"><label for="fullName">Full name</label><input id="fullName" required maxlength="100"></div><div class="field-group"><label for="email">Email</label><input id="email" type="email" required maxlength="150"></div><div class="field-group"><label for="phoneNumber">Phone</label><input id="phoneNumber" required maxlength="15"></div><div class="field-group"><label for="customerDistrict">District</label><input id="customerDistrict" required maxlength="100"></div><div class="field-group full-width"><label for="address">Address</label><input id="address" maxlength="255"></div></div><p id="modalError" class="error-message"></p><div class="modal-actions"><button id="cancelModal" class="button secondary" type="button">Cancel</button><button class="button" type="submit">Save Changes</button></div></form></div></div>
+
+<script>
+let customers = [], inactiveCustomers = [], editingId = null;
+const $ = id => document.getElementById(id);
+const escapeHtml = value => String(value || "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+
+async function csrfHeaders() {
+    const response = await fetch("/api/auth/csrf");
+    if (!response.ok) throw new Error("Unable to authorize this admin action.");
+    const data = await response.json();
+    const token = data.token || decodeURIComponent(document.cookie.split("; ").find(c => c.startsWith("XSRF-TOKEN="))?.split("=")[1] || "");
+    if (!token) throw new Error("Unable to authorize this admin action.");
+    return {"Content-Type":"application/json","X-XSRF-TOKEN":token};
+}
+
+function customerRow(c, actions = true) {
+    const initials = (c.fullName || "?").split(/\s+/).map(p => p[0]).slice(0,2).join("").toUpperCase();
+    return `<tr>
+        <td><div class="customer-cell"><span class="avatar avatar-purple">${escapeHtml(initials)}</span><div><strong>${escapeHtml(c.fullName)}</strong><small>#CUS-${String(c.id).padStart(4,"0")}</small></div></div></td>
+        <td><strong class="contact-email">${escapeHtml(c.email)}</strong><small>${escapeHtml((c.countryCode || "") + " " + (c.phoneNumber || ""))}</small></td>
+        <td>${escapeHtml(c.address || c.district || "—")}</td>
+        ${actions ? `<td><div class="action-buttons"><button class="table-action edit" data-id="${c.id}" aria-label="Edit">✎</button><button class="table-action delete" data-id="${c.id}" aria-label="Delete">⌫</button></div></td>` : ""}
+    </tr>`;
+}
+
+function renderActive() {
+    const q = $("search").value.trim().toLowerCase();
+    const rows = customers.filter(c => !q || [c.fullName,c.email,c.phoneNumber,c.district].some(v => String(v || "").toLowerCase().includes(q)));
+    $("customers").innerHTML = rows.length ? rows.map(c => customerRow(c)).join("") : `<tr><td colspan="4" class="empty-state">No active customers match your search.</td></tr>`;
+    document.querySelectorAll(".edit").forEach(b => b.onclick = () => openEditor(Number(b.dataset.id)));
+    document.querySelectorAll(".delete").forEach(b => b.onclick = () => deleteCustomer(Number(b.dataset.id)));
+}
+
+function renderInactive() {
+    $("inactiveCustomers").innerHTML = inactiveCustomers.length ? inactiveCustomers.map(c => customerRow(c,false)).join("") : `<tr><td colspan="3" class="empty-state">No inactive customers.</td></tr>`;
+    $("inactiveCount").textContent = `${inactiveCustomers.length} inactive`;
+}
+
+async function load() {
+    $("message").textContent = "";
+    $("message").classList.remove("error-message");
+    $("search").value = "";
+    try {
+        const [activeResponse, inactiveResponse] = await Promise.all([fetch("/api/admin/customers"), fetch("/api/admin/customers/inactive")]);
+        if (!activeResponse.ok || !inactiveResponse.ok) { location.href = "/admin-login.html"; return; }
+        customers = await activeResponse.json();
+        inactiveCustomers = await inactiveResponse.json();
+        renderActive(); renderInactive();
+    } catch (error) {
+        $("message").textContent = "Customers could not be loaded.";
+        $("message").classList.add("error-message");
+    }
+}
+
+function openEditor(id) {
+    const customer = customers.find(x => x.id === id); if (!customer) return;
+    editingId = id;
+    $("fullName").value = customer.fullName || "";
+    $("email").value = customer.email || "";
+    $("phoneNumber").value = customer.phoneNumber || "";
+    $("customerDistrict").value = customer.district || "";
+    $("address").value = customer.address || "";
+    $("modalError").textContent = "";
+    $("editModal").classList.remove("hidden");
+}
+function closeEditor() { $("editModal").classList.add("hidden"); editingId = null; }
+async function readError(response, fallback) { try { const body = await response.json(); return Object.values(body.fieldErrors || {})[0] || body.message || fallback; } catch { return fallback; } }
+
+async function deleteCustomer(id) {
+    const customer = customers.find(x => x.id === id);
+    if (!customer || !confirm(`Do you want to delete this customer?\n\n${customer.fullName}`)) return;
+    try {
+        const response = await fetch(`/api/admin/customers/${id}`, {method:"DELETE", headers:await csrfHeaders()});
+        if (!response.ok) throw new Error(await readError(response,"Customer could not be deleted."));
+        await load();
+        $("message").textContent = "Customer deleted successfully.";
+    } catch (error) { $("message").textContent = error.message; $("message").classList.add("error-message"); }
+}
+
+async function save(event) {
+    event.preventDefault();
+    if (!editingId || !$("editForm").reportValidity()) return;
+    const customer = customers.find(x => x.id === editingId); if (!customer) return;
+    const body = {username:customer.username,fullName:$("fullName").value.trim(),email:$("email").value.trim(),phoneNumber:$("phoneNumber").value.trim(),countryCode:customer.countryCode || "+91",district:$("customerDistrict").value.trim(),address:$("address").value.trim()};
+    try {
+        const response = await fetch(`/api/admin/customers/${editingId}`, {method:"PUT",headers:await csrfHeaders(),body:JSON.stringify(body)});
+        if (!response.ok) throw new Error(await readError(response,"Unable to save changes."));
+        closeEditor(); await load(); $("message").textContent = "Customer updated successfully.";
+    } catch (error) { $("modalError").textContent = error.message; }
+}
+
+$("search").oninput = renderActive;
+$("refresh").onclick = load;
+$("editForm").onsubmit = save;
+$("closeModal").onclick = closeEditor;
+$("cancelModal").onclick = closeEditor;
+load();
+</script>
+</body>
+</html>

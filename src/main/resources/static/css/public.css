@@ -1,0 +1,1390 @@
+/* =========================================================
+   DYNAMIC DUDES — PUBLIC WEBSITE STYLES
+   Home | About | Contact
+   ========================================================= */
+
+
+/* =========================================================
+   GLOBAL
+   ========================================================= */
+
+:root {
+    --bg: #f5f7fb;
+    --dark: #172033;
+    --dark-soft: #202b42;
+    --primary: #6366f1;
+    --primary-dark: #4f46e5;
+    --secondary: #8b5cf6;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --white: #ffffff;
+    --light-purple: #eef0ff;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: "Inter", sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.7;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+
+/* =========================================================
+   NAVBAR
+   Shared by Home | About | Contact
+   ========================================================= */
+
+.public-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    min-height: 76px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 clamp(22px, 5vw, 80px);
+
+    background: rgba(255, 255, 255, 0.94);
+    border-bottom: 1px solid var(--border);
+
+    backdrop-filter: blur(16px);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    font-size: 1.08rem;
+    font-weight: 700;
+
+    color: var(--dark);
+}
+
+.brand-mark {
+    width: 34px;
+    height: 34px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 10px;
+
+    color: white;
+
+    background: linear-gradient(
+        135deg,
+        var(--primary),
+        var(--secondary)
+    );
+}
+
+.brand-muted {
+    color: var(--primary);
+    font-weight: 400;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.nav-links > a {
+    color: #4b5563;
+    font-size: 0.88rem;
+    font-weight: 600;
+    transition: 0.2s ease;
+}
+
+.nav-links > a:hover,
+.nav-links > a.active {
+    color: var(--primary);
+}
+
+
+/* =========================================================
+   LOGIN DROPDOWN
+   ========================================================= */
+
+.login-menu {
+    position: relative;
+}
+
+.login-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    padding: 10px 18px;
+
+    border-radius: 10px;
+
+    color: white !important;
+
+    background: linear-gradient(
+        135deg,
+        var(--primary),
+        var(--secondary)
+    ) !important;
+}
+
+.login-dropdown {
+    position: absolute;
+
+    right: 0;
+    top: calc(100% + 12px);
+
+    width: 175px;
+    padding: 8px;
+
+    background: white;
+
+    border: 1px solid var(--border);
+    border-radius: 12px;
+
+    box-shadow: 0 18px 45px rgba(23, 32, 51, 0.15);
+
+    opacity: 0;
+    visibility: hidden;
+
+    transform: translateY(-6px);
+
+    transition: 0.2s ease;
+}
+
+.login-menu:hover .login-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.login-dropdown a {
+    display: block;
+
+    padding: 10px 12px;
+
+    border-radius: 8px;
+
+    color: var(--text);
+
+    font-size: 0.85rem;
+}
+
+.login-dropdown a:hover {
+    background: var(--light-purple);
+    color: var(--primary-dark);
+}
+
+
+/* =========================================================
+   COMMON HERO CONTENT
+   ========================================================= */
+
+.hero-content {
+    width: min(1180px, 100%);
+    margin: auto;
+    padding: 90px 30px;
+}
+
+.eyebrow {
+    color: #c7d2fe;
+
+    font-size: 0.72rem;
+    font-weight: 700;
+
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+
+    margin-bottom: 15px;
+}
+
+.section-label {
+    color: var(--primary);
+
+    font-size: 0.72rem;
+    font-weight: 700;
+
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+
+    margin-bottom: 14px;
+}
+
+
+/* =========================================================
+   COMMON SECTIONS
+   ========================================================= */
+
+.section {
+    width: min(1180px, 100%);
+    margin: auto;
+    padding: 110px 30px;
+}
+
+.section-title {
+    max-width: 850px;
+
+    margin-top: 15px;
+
+    font-size: clamp(2.3rem, 5vw, 4.5rem);
+
+    line-height: 1.05;
+    letter-spacing: -0.055em;
+
+    color: var(--dark);
+}
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 13px 21px;
+
+    border-radius: 10px;
+
+    font-size: 0.88rem;
+    font-weight: 700;
+
+    transition: 0.2s ease;
+}
+
+.btn-primary {
+    color: white;
+
+    background: linear-gradient(
+        135deg,
+        var(--primary),
+        var(--secondary)
+    );
+}
+
+.btn-outline {
+    color: white;
+
+    border: 1px solid rgba(255, 255, 255, 0.35);
+
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+
+/* =========================================================
+   HOME PAGE
+   ========================================================= */
+
+
+/* -------------------------
+   HOME HERO
+   ------------------------- */
+
+.hero {
+    min-height: 78vh;
+
+    display: flex;
+    align-items: center;
+
+    position: relative;
+    overflow: hidden;
+
+    color: white;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(13, 21, 39, 0.94) 0%,
+            rgba(23, 32, 51, 0.82) 48%,
+            rgba(79, 70, 229, 0.35) 100%
+        ),
+        url("/images/dashboardstartup.png")
+        center / cover no-repeat;
+}
+
+.hero-content {
+    padding: 80px 30px;
+}
+
+.hero-eyebrow {
+    display: inline-block;
+
+    margin-bottom: 18px;
+
+    font-size: 0.74rem;
+
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+
+    color: #c7d2fe;
+
+    font-weight: 700;
+}
+
+.hero h1 {
+    max-width: 780px;
+
+    font-size: clamp(3rem, 7vw, 6.5rem);
+
+    line-height: 0.98;
+    letter-spacing: -0.065em;
+
+    margin-bottom: 28px;
+}
+
+.hero p {
+    max-width: 640px;
+
+    color: #dbe3f4;
+
+    font-size: clamp(1rem, 1.7vw, 1.25rem);
+
+    margin-bottom: 36px;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+
+/* -------------------------
+   HOME INTRO
+   ------------------------- */
+
+.intro {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 90px;
+
+    align-items: end;
+}
+
+.intro-text {
+    color: var(--muted);
+    font-size: 1rem;
+}
+
+.intro-text p + p {
+    margin-top: 18px;
+}
+
+
+/* -------------------------
+   HOME OFFERS
+   ------------------------- */
+
+.offers-section {
+    background: white;
+
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+.offer-list {
+    margin-top: 65px;
+}
+
+.offer-row {
+    display: grid;
+
+    grid-template-columns: 80px 1fr 80px;
+
+    gap: 25px;
+
+    align-items: center;
+
+    padding: 34px 0;
+
+    border-top: 1px solid var(--border);
+
+    transition: 0.25s ease;
+}
+
+.offer-row:last-child {
+    border-bottom: 1px solid var(--border);
+}
+
+.offer-number {
+    color: #9ca3af;
+
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.offer-row h3 {
+    font-size: clamp(1.25rem, 2.5vw, 2rem);
+
+    color: var(--dark);
+
+    margin-bottom: 6px;
+}
+
+.offer-row p {
+    color: var(--muted);
+    max-width: 700px;
+}
+
+.offer-arrow {
+    justify-self: end;
+
+    font-size: 1.5rem;
+
+    color: var(--primary);
+
+    transition: 0.25s ease;
+}
+
+.offer-row:hover .offer-arrow {
+    transform: translateX(8px);
+}
+
+
+/* -------------------------
+   HOME SERVICES
+   ------------------------- */
+
+.services-intro {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: end;
+
+    gap: 40px;
+
+    margin-bottom: 70px;
+}
+
+.services-intro p {
+    max-width: 430px;
+    color: var(--muted);
+}
+
+.services-list {
+    display: grid;
+
+    grid-template-columns: repeat(2, 1fr);
+
+    border-top: 1px solid var(--border);
+}
+
+.service {
+    padding: 35px 30px 35px 0;
+
+    border-bottom: 1px solid var(--border);
+}
+
+.service:nth-child(even) {
+    padding-left: 30px;
+
+    border-left: 1px solid var(--border);
+}
+
+.service h3 {
+    margin-bottom: 12px;
+
+    color: var(--dark);
+
+    font-size: 1.25rem;
+}
+
+.service p {
+    color: var(--muted);
+    font-size: 0.92rem;
+}
+
+
+/* -------------------------
+   HOME MIDDLE BANNER
+   ------------------------- */
+
+.middle-banner {
+    min-height: 520px;
+
+    display: flex;
+    align-items: center;
+
+    position: relative;
+
+    color: white;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(23, 32, 51, 0.94),
+            rgba(79, 70, 229, 0.63)
+        ),
+        url("/images/loginpage.png")
+        center / cover no-repeat;
+}
+
+.middle-content {
+    width: min(1180px, 100%);
+    margin: auto;
+
+    padding: 90px 30px;
+}
+
+.middle-content h2 {
+    max-width: 800px;
+
+    font-size: clamp(2.5rem, 5vw, 5rem);
+
+    line-height: 1;
+    letter-spacing: -0.055em;
+
+    margin-bottom: 25px;
+}
+
+.middle-content p {
+    max-width: 600px;
+
+    color: #e1e7f5;
+
+    margin-bottom: 30px;
+}
+
+
+/* -------------------------
+   HOME PROCESS
+   ------------------------- */
+
+.process {
+    margin-top: 70px;
+
+    border-top: 1px solid var(--border);
+}
+
+.process-row {
+    display: grid;
+
+    grid-template-columns: 100px 230px 1fr;
+
+    gap: 30px;
+
+    padding: 30px 0;
+
+    border-bottom: 1px solid var(--border);
+}
+
+.process-number {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.process-row h3 {
+    color: var(--dark);
+}
+
+.process-row p {
+    color: var(--muted);
+}
+
+
+/* -------------------------
+   HOME ENQUIRY
+   ------------------------- */
+
+.enquiry-section {
+    background: var(--dark);
+    color: white;
+}
+
+.enquiry-section .section-title {
+    color: white;
+}
+
+.enquiry-layout {
+    display: grid;
+
+    grid-template-columns: 0.8fr 1.2fr;
+
+    gap: 100px;
+
+    align-items: start;
+}
+
+.enquiry-description {
+    color: #aeb8cc;
+
+    margin-top: 24px;
+
+    max-width: 420px;
+}
+
+#enquiry-form {
+    display: grid;
+    gap: 18px;
+}
+
+.form-group label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #4b5563;
+
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.enquiry-section .form-group label {
+    color: #cbd5e1;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+
+    padding: 14px 0;
+
+    border: none;
+
+    outline: none;
+
+    font-family: inherit;
+    font-size: 0.95rem;
+}
+
+.enquiry-section .form-group input,
+.enquiry-section .form-group textarea {
+    color: white;
+    background: transparent;
+
+    border-bottom: 1px solid #44516a;
+}
+
+.form-group textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.enquiry-section .form-group input:focus,
+.enquiry-section .form-group textarea:focus {
+    border-color: #818cf8;
+}
+
+.form-button {
+    justify-self: start;
+
+    margin-top: 8px;
+
+    border: none;
+
+    cursor: pointer;
+}
+
+
+/* -------------------------
+   HOME COMMENTS
+   ------------------------- */
+
+.comments-section {
+    background: white;
+}
+
+.comment {
+    display: grid;
+
+    grid-template-columns: 100px 1fr;
+
+    gap: 40px;
+
+    padding: 45px 0;
+
+    border-top: 1px solid var(--border);
+}
+
+.comment:first-child {
+    margin-top: 60px;
+}
+
+.comment-number {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.comment blockquote {
+    max-width: 850px;
+
+    font-size: clamp(1.3rem, 2.5vw, 2rem);
+
+    line-height: 1.4;
+
+    color: var(--dark);
+
+    letter-spacing: -0.025em;
+}
+
+.comment cite {
+    display: block;
+
+    margin-top: 15px;
+
+    color: var(--muted);
+
+    font-size: 0.85rem;
+
+    font-style: normal;
+}
+
+
+/* =========================================================
+   ABOUT PAGE
+   ========================================================= */
+
+
+/* -------------------------
+   ABOUT HERO
+   ------------------------- */
+
+.about-hero {
+    min-height: 58vh;
+
+    display: flex;
+    align-items: end;
+
+    color: white;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(23, 32, 51, 0.94),
+            rgba(79, 70, 229, 0.5)
+        ),
+        url("/images/dashboardstartup.png")
+        center / cover no-repeat;
+}
+
+.about-hero .eyebrow {
+    color: #c7d2fe;
+}
+
+.about-hero h1 {
+    max-width: 900px;
+
+    font-size: clamp(3rem, 7vw, 6rem);
+
+    line-height: 0.98;
+    letter-spacing: -0.065em;
+}
+
+
+/* -------------------------
+   ABOUT STORY
+   ------------------------- */
+
+.story {
+    display: grid;
+
+    grid-template-columns: 0.9fr 1.1fr;
+
+    gap: 100px;
+}
+
+.story-text {
+    color: var(--muted);
+}
+
+.story-text p + p {
+    margin-top: 20px;
+}
+
+
+/* -------------------------
+   ABOUT VALUES
+   ------------------------- */
+
+.values-section {
+    background: white;
+
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+.value-row {
+    display: grid;
+
+    grid-template-columns: 100px 260px 1fr;
+
+    gap: 30px;
+
+    padding: 35px 0;
+
+    border-top: 1px solid var(--border);
+}
+
+.value-row:first-child {
+    margin-top: 60px;
+}
+
+.value-number {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.value-row h3 {
+    color: var(--dark);
+}
+
+.value-row p {
+    color: var(--muted);
+}
+
+
+/* -------------------------
+   ABOUT MISSION
+   ------------------------- */
+
+.mission {
+    background: var(--dark);
+    color: white;
+}
+
+.mission .section-title {
+    color: white;
+}
+
+.mission-grid {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 80px;
+
+    margin-top: 65px;
+}
+
+.mission-block {
+    padding-top: 25px;
+
+    border-top: 1px solid #39455d;
+}
+
+.mission-block h3 {
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+}
+
+.mission-block p {
+    color: #aeb8cc;
+}
+
+
+/* -------------------------
+   ABOUT APPROACH
+   ------------------------- */
+
+.approach {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 100px;
+
+    align-items: end;
+}
+
+.approach-text {
+    color: var(--muted);
+}
+
+.approach-list {
+    border-top: 1px solid var(--border);
+}
+
+.approach-item {
+    display: flex;
+
+    justify-content: space-between;
+
+    padding: 25px 0;
+
+    border-bottom: 1px solid var(--border);
+
+    color: var(--dark);
+
+    font-weight: 600;
+}
+
+.approach-item span {
+    color: var(--primary);
+}
+
+
+/* =========================================================
+   CONTACT PAGE
+   ========================================================= */
+
+
+/* -------------------------
+   CONTACT HERO
+   ------------------------- */
+
+.contact-hero {
+    min-height: 50vh;
+
+    display: flex;
+    align-items: end;
+
+    color: white;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(23, 32, 51, 0.95),
+            rgba(79, 70, 229, 0.48)
+        ),
+        url("/images/loginpage.png")
+        center / cover no-repeat;
+}
+
+.contact-hero h1 {
+    max-width: 900px;
+
+    font-size: clamp(3rem, 7vw, 6rem);
+
+    line-height: 0.98;
+    letter-spacing: -0.065em;
+}
+
+
+/* -------------------------
+   CONTACT INTRO
+   ------------------------- */
+
+.contact-intro {
+    display: grid;
+
+    grid-template-columns: 0.8fr 1.2fr;
+
+    gap: 100px;
+}
+
+.contact-text {
+    color: var(--muted);
+
+    max-width: 550px;
+}
+
+.contact-details {
+    margin-top: 45px;
+
+    border-top: 1px solid var(--border);
+}
+
+.detail {
+    display: grid;
+
+    grid-template-columns: 150px 1fr;
+
+    padding: 20px 0;
+
+    border-bottom: 1px solid var(--border);
+}
+
+.detail strong {
+    color: var(--dark);
+    font-size: 0.85rem;
+}
+
+.detail span {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+
+/* -------------------------
+   CONTACT FORM
+   ------------------------- */
+
+.form-section {
+    background: white;
+
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+.form-layout {
+    display: grid;
+
+    grid-template-columns: 0.75fr 1.25fr;
+
+    gap: 100px;
+}
+
+.form-note {
+    margin-top: 25px;
+
+    color: var(--muted);
+
+    max-width: 400px;
+}
+
+.contact-form {
+    display: grid;
+    gap: 25px;
+}
+
+.contact-form input,
+.contact-form textarea {
+    width: 100%;
+
+    padding: 14px 0;
+
+    border: none;
+
+    border-bottom: 1px solid #cbd5e1;
+
+    background: transparent;
+
+    outline: none;
+
+    font-family: inherit;
+
+    color: var(--text);
+
+    font-size: 0.95rem;
+}
+
+.contact-form textarea {
+    min-height: 150px;
+
+    resize: vertical;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+    border-color: var(--primary);
+}
+
+.submit-button {
+    justify-self: start;
+
+    padding: 13px 22px;
+
+    border: none;
+    border-radius: 10px;
+
+    color: white;
+
+    background: linear-gradient(
+        135deg,
+        var(--primary),
+        var(--secondary)
+    );
+
+    font-family: inherit;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.submit-button:hover {
+    transform: translateY(-2px);
+}
+
+
+/* -------------------------
+   CONTACT FINAL CTA
+   ------------------------- */
+
+.cta {
+    text-align: center;
+
+    background: var(--dark);
+
+    color: white;
+}
+
+.cta .section-title {
+    max-width: 850px;
+
+    margin-left: auto;
+    margin-right: auto;
+
+    color: white;
+}
+
+.cta p {
+    max-width: 550px;
+
+    margin: 25px auto 30px;
+
+    color: #aeb8cc;
+}
+
+.cta-button {
+    display: inline-flex;
+
+    padding: 13px 22px;
+
+    border-radius: 10px;
+
+    color: white;
+
+    background: linear-gradient(
+        135deg,
+        var(--primary),
+        var(--secondary)
+    );
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   FOOTER
+   Shared by Home | About | Contact
+   ========================================================= */
+
+footer {
+    background: #101827;
+
+    color: white;
+
+    padding: 65px 30px 28px;
+}
+
+.footer-inner {
+    width: min(1180px, 100%);
+    margin: auto;
+}
+
+.footer-main {
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 50px;
+
+    padding-bottom: 55px;
+}
+
+.footer-description {
+    max-width: 380px;
+
+    color: #9ca8bb;
+
+    margin-top: 18px;
+}
+
+.footer-links {
+    display: flex;
+    gap: 70px;
+}
+
+.footer-column h4 {
+    margin-bottom: 15px;
+
+    color: #c7d2fe;
+
+    font-size: 0.75rem;
+
+    letter-spacing: 0.1em;
+
+    text-transform: uppercase;
+}
+
+.footer-column a {
+    display: block;
+
+    color: #9ca8bb;
+
+    font-size: 0.85rem;
+
+    margin-bottom: 8px;
+}
+
+.footer-column a:hover {
+    color: white;
+}
+
+.footer-bottom {
+    padding-top: 25px;
+
+    border-top: 1px solid #273247;
+
+    color: #78859a;
+
+    font-size: 0.78rem;
+}
+
+
+/* =========================================================
+   MOBILE / RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 800px) {
+
+    /* ---------- NAVBAR ---------- */
+
+    .public-nav {
+        height: auto;
+
+        min-height: 70px;
+
+        padding: 15px 20px;
+
+        align-items: flex-start;
+    }
+
+    .nav-links {
+        gap: 10px;
+
+        flex-wrap: wrap;
+
+        justify-content: flex-end;
+    }
+
+    .nav-links > a {
+        font-size: 0.75rem;
+    }
+
+    .login-button {
+        padding: 8px 12px;
+    }
+
+
+    /* ---------- COMMON ---------- */
+
+    .section {
+        padding: 75px 24px;
+    }
+
+
+    /* ---------- HOME ---------- */
+
+    .hero {
+        min-height: 75vh;
+    }
+
+    .hero-content {
+        padding: 70px 24px;
+    }
+
+    .intro,
+    .enquiry-layout {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .offer-row {
+        grid-template-columns: 45px 1fr 35px;
+        gap: 12px;
+    }
+
+    .services-intro {
+        display: block;
+    }
+
+    .services-intro p {
+        margin-top: 25px;
+    }
+
+    .services-list {
+        grid-template-columns: 1fr;
+    }
+
+    .service,
+    .service:nth-child(even) {
+        padding: 30px 0;
+
+        border-left: none;
+    }
+
+    .process-row {
+        grid-template-columns: 50px 1fr;
+
+        gap: 15px;
+    }
+
+    .process-row p {
+        grid-column: 2;
+    }
+
+    .comment {
+        grid-template-columns: 45px 1fr;
+
+        gap: 15px;
+    }
+
+
+    /* ---------- ABOUT ---------- */
+
+    .story,
+    .mission-grid,
+    .approach {
+        grid-template-columns: 1fr;
+
+        gap: 45px;
+    }
+
+    .value-row {
+        grid-template-columns: 45px 1fr;
+
+        gap: 15px;
+    }
+
+    .value-row p {
+        grid-column: 2;
+    }
+
+
+    /* ---------- CONTACT ---------- */
+
+    .contact-intro,
+    .form-layout {
+        grid-template-columns: 1fr;
+
+        gap: 45px;
+    }
+
+    .detail {
+        grid-template-columns: 110px 1fr;
+    }
+
+
+    /* ---------- FOOTER ---------- */
+
+    .footer-main {
+        display: block;
+    }
+
+    .footer-links {
+        margin-top: 40px;
+
+        gap: 40px;
+    }
+}

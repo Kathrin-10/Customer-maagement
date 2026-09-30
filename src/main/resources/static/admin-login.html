@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Admin Login | Dynamic Dudes</title><link rel="stylesheet" href="/styles.css"></head>
+<body class="login-page"><main class="login-card"><h1>Admin Login</h1><p>Only authorized administrators can access this area.</p><form id="form"><label for="username">Username</label><input id="username" name="username" type="text" required autocomplete="username"><label for="password">Admin password</label><div class="password-field"><input id="password" name="password" type="password" required autocomplete="current-password"><button type="button" class="toggle-password" aria-label="Show password">👁</button></div><button type="submit">Sign in</button></form><p id="message" class="error-message" role="alert"></p><a href="/login">Customer login</a></main>
+<script>
+const passwordField=document.getElementById("password"); const passwordToggle=document.querySelector(".toggle-password"); passwordToggle.addEventListener("click",function(){const hidden=passwordField.type==="password";passwordField.type=hidden?"text":"password";passwordToggle.textContent=hidden?"🙈":"👁";passwordToggle.setAttribute("aria-label",hidden?"Hide password":"Show password");});
+document.getElementById("form").addEventListener("submit", async function (event) {
+ event.preventDefault(); const message=document.getElementById("message");
+ try { const body=new URLSearchParams({username:document.getElementById("username").value.trim(),password:document.getElementById("password").value}); const response=await fetch("/api/auth/login",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:body,credentials:"same-origin"});
+ if (!response.ok || new URL(response.url, window.location.origin).pathname === "/login") { message.textContent="Invalid admin username or password."; return; } const userResponse=await fetch("/api/auth/me",{credentials:"same-origin"}); if(!userResponse.ok){message.textContent="Unable to verify the administrator session.";return;} const user=await userResponse.json(); if(user.role!=="ADMIN"){message.textContent="This account does not have administrator access.";await fetch("/logout");return;} location.href="/admin.html";
+ } catch (error) { message.textContent="Admin login failed. Please try again."; }
+});
+</script></body></html>

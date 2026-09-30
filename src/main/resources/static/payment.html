@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Payment | Dynamic Dudes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/styles.css">
+</head>
+<body class="customer-page">
+<div class="app-shell">
+<aside class="sidebar"><a class="brand" href="/dashboard.html"><span class="brand-mark">D</span><span>Dynamic <span class="brand-muted">Dudes</span></span></a><nav class="side-nav"><a href="/dashboard.html"><span>⌂</span>Dashboard</a><a class="active" href="/projects.html"><span>▦</span>My Projects</a><a href="/register-project.html"><span>＋</span>Register Project</a><a href="/profile.html"><span>◉</span>My Profile</a></nav><a class="side-logout" href="/logout"><span>↪</span>Logout</a></aside>
+<main class="portal-main narrow">
+<a class="back-link" href="/projects.html">← Back to projects</a>
+<section class="portal-card project-form-card">
+<p class="overline">Demo payment</p><h1>Make a Project Payment</h1><p class="subtitle">This is an internal demo payment form. It does not connect to Razorpay, a bank, or any real payment gateway.</p>
+<form id="paymentForm">
+<label>Project<select id="projectId" required><option value="">Loading projects...</option></select></label>
+<div id="projectInfo" class="portal-card" style="margin-top:18px;background:#f8fafc;box-shadow:none;border:1px solid var(--border);display:none"><p id="projectTitle"></p><p id="projectBalance"></p></div>
+<label>Payment amount<input id="amount" type="number" min="0.01" step="0.01" required placeholder="₹"></label>
+<p id="message" class="feedback"></p>
+<div class="modal-actions"><a class="button secondary" href="/projects.html">Cancel</a><button class="button" type="submit">Record Demo Payment</button></div>
+</form>
+</section>
+</main></div>
+<script>
+const projectSelect=document.getElementById("projectId"), amountInput=document.getElementById("amount"), message=document.getElementById("message"), info=document.getElementById("projectInfo");
+let projects=[];
+const money=new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:0});
+function updateInfo(){const p=projects.find(x=>String(x.id)===projectSelect.value);if(!p){info.style.display="none";return;}const budget=Number(p.budget||p.amount||0),paid=Number(p.advanceAmount||0),remaining=Math.max(0,budget-paid);document.getElementById("projectTitle").textContent=`${p.title} · ${p.category||"Project"}`;document.getElementById("projectBalance").textContent=`Remaining balance: ${money.format(remaining)}`;amountInput.max=remaining;info.style.display="block";}
+async function csrf(){const r=await fetch("/api/auth/csrf");if(!r.ok)throw new Error("Unable to verify your session.");const d=await r.json();return d.token;}
+async function load(){const r=await fetch("/api/customer/projects");if(!r.ok){location.href="/login.html";return;}projects=await r.json();const query=new URLSearchParams(location.search).get("projectId");projectSelect.innerHTML=`<option value="">Choose a project</option>`+projects.map(p=>`<option value="${p.id}">${escapeHtml(p.title)} — ${money.format(Number(p.budget||p.amount||0))}</option>`).join("");if(query&&projects.some(p=>String(p.id)===query))projectSelect.value=query;updateInfo();}
+projectSelect.onchange=updateInfo;
+document.getElementById("paymentForm").onsubmit=async e=>{e.preventDefault();message.textContent="";message.classList.remove("error-message");const projectId=Number(projectSelect.value),amount=Number(amountInput.value);const p=projects.find(x=>x.id===projectId);const remaining=p?Number(p.budget||p.amount||0)-Number(p.advanceAmount||0):0;if(!projectId||!amount||amount<=0){message.textContent="Choose a project and enter a valid amount.";message.classList.add("error-message");return;}if(amount>remaining){message.textContent=`Payment cannot exceed the remaining balance of ${money.format(remaining)}.`;message.classList.add("error-message");return;}try{const token=await csrf();const r=await fetch("/api/customer/payments",{method:"POST",headers:{"Content-Type":"application/json","X-XSRF-TOKEN":token},body:JSON.stringify({projectId,amount})});if(!r.ok){let b={};try{b=await r.json()}catch{}throw new Error(b.message||"Payment could not be recorded.");}message.textContent="Demo payment recorded successfully. The project balance and revenue report have been updated.";await load();amountInput.value="";}catch(err){message.textContent=err.message;message.classList.add("error-message");}};
+function escapeHtml(v){return String(v??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
+load();
+</script>
+</body></html>

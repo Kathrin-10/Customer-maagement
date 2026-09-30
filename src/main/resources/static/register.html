@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>Register | Dynamic Dudes – Digital Marketing</title>
+
+<link rel="stylesheet" href="/styles.css">
+
+
+</head>
+
+<body class="register-page">
+
+<h1>Dynamic Dudes – Digital Marketing</h1>
+
+<p class="page-intro">
+    Create your customer profile.
+</p>
+
+
+<form id="registerForm" class="register-card" novalidate>
+
+    <p class="required-note">
+        Required fields are marked with
+        <span class="required">*</span>.
+    </p>
+
+
+    <!-- USERNAME -->
+    <div class="field-group">
+
+        <label for="username">
+            Username <span class="required">*</span>
+        </label>
+
+        <input
+            type="text"
+            id="username"
+            name="username"
+            required
+            minlength="3"
+            maxlength="20"
+            pattern="[A-Za-z0-9._-]+"
+            autocomplete="username"
+            aria-describedby="usernameError"
+        >
+
+        <span
+            id="usernameError"
+            class="field-error"
+            role="alert">
+        </span>
+
+    </div>
+
+
+    <!-- FULL NAME -->
+    <div class="field-group">
+
+        <label for="fullName">
+            Full Name <span class="required">*</span>
+        </label>
+
+        <input
+            type="text"
+            id="fullName"
+            name="fullName"
+            required
+            minlength="2"
+            maxlength="100"
+            autocomplete="name"
+            aria-describedby="fullNameError"
+        >
+
+        <span
+            id="fullNameError"
+            class="field-error"
+            role="alert">
+        </span>
+
+    </div>
+
+
+    <!-- EMAIL -->
+    <div class="field-group">
+
+        <label for="email">
+            Email <span class="required">*</span>
+        </label>
+
+
+        <div class="email-field">
+
+            <input
+                type="text"
+                id="email"
+                name="email"
+                required
+                maxlength="255"
+                inputmode="email"
+                autocomplete="email"
+                placeholder="username"
+                aria-describedby="emailHint emailError"
+            >
+
+            <!-- Visual Gmail hint only -->
+            <span
+                id="emailHint"
+                class="email-suffix">
+                @gmail.com
+            </span>
+
+        </div>
+
+
+        <small id="emailHintText" class="email-help">
+            You can enter only your username. @gmail.com will be added when you register.
+        </small>
+
+
+        <span
+            id="emailError"
+            class="field-error"
+            role="alert">
+        </span>
+
+    </div>
+
+
+    <!-- PASSWORD -->
+    <div class="field-group">
+
+        <label for="password">
+            Password <span class="required">*</span>
+        </label>
+
+        <div class="password-field">
+
+            <input
+                type="password"
+                id="password"
+                name="password"
+                required
+                minlength="6"
+                maxlength="72"
+                autocomplete="new-password"
+                aria-describedby="passwordError"
+            >
+
+            <button
+                type="button"
+                class="toggle-password"
+                aria-label="Show password">
+                👁
+            </button>
+
+        </div>
+
+        <span
+            id="passwordError"
+            class="field-error"
+            role="alert">
+        </span>
+
+    </div>
+
+
+    <!-- PHONE -->
+    <div class="field-group">
+
+        <label for="countryCode">
+            Phone Number <span class="required">*</span>
+        </label>
+
+        <div class="phone-field">
+
+            <select
+                id="countryCode"
+                name="countryCode"
+                aria-label="Country code">
+
+                <option value="+1">
+                    +1 (US/Canada)
+                </option>
+
+                <option value="+44">
+                    +44 (UK)
+                </option>
+
+                <option value="+61">
+                    +61 (Australia)
+                </option>
+
+                <option value="+91" selected>
+                    +91 (India)
+                </option>
+
+                <option value="+971">
+                    +971 (UAE)
+                </option>
+
+                <option value="+92">
+                    +92 (Pakistan)
+                </option>
+
+                <option value="+27">
+                    +27 (South Africa)
+                </option>
+
+            </select>
+
+
+            <input
+                type="tel"
+                id="phoneNumber"
+                name="phoneNumber"
+                required
+                minlength="7"
+                maxlength="15"
+                pattern="[0-9 ]+"
+                autocomplete="tel"
+                aria-describedby="phoneNumberError"
+            >
+
+        </div>
+
+
+        <span
+            id="phoneNumberError"
+            class="field-error"
+            role="alert">
+        </span>
+
+    </div>
+
+
+    <!-- DISTRICT -->
+    <div class="field-group">
+
+        <label for="district">
+            District <span class="required">*</span>
+        </label>
+
+        <input
+            type="text"
+            id="district"
+            name="district"
+            required
+            minlength="2"
+            maxlength="100"
+            aria-describedby="districtError"
+        >
+
+        <span
+            id="districtError"
+            class="field-error"
+            role="alert">
+        </span>
+
+    </div>
+
+
+    <!-- ADDRESS -->
+    <div class="field-group">
+
+        <label for="address">
+            Address
+            <span class="optional">(optional)</span>
+        </label>
+
+        <input
+            type="text"
+            id="address"
+            name="address"
+            maxlength="255"
+            autocomplete="street-address"
+            aria-describedby="addressError"
+        >
+
+        <span
+            id="addressError"
+            class="field-error"
+            role="alert">
+        </span>
+
+    </div>
+
+
+    <button type="submit">
+        Create account
+    </button>
+
+</form>
+
+
+<p id="message" role="status"></p>
+
+
+<p>
+    Already have an account?
+    <a href="/login">Login</a>
+</p>
+
+
+<script>
+
+    const form =
+        document.getElementById("registerForm");
+
+    const message =
+        document.getElementById("message");
+
+    const countryCode =
+        document.getElementById("countryCode");
+
+    const passwordToggle =
+        document.querySelector(".toggle-password");
+
+    const emailInput =
+        document.getElementById("email");
+
+    const emailHint =
+        document.getElementById("emailHint");
+
+    const emailHintText =
+        document.getElementById("emailHintText");
+
+
+    /*
+     * VALIDATION MESSAGES
+     */
+
+    const validationRules = {
+
+        username:
+            "Username must be 3-20 characters using letters, numbers, dots, underscores, or dashes.",
+
+        fullName:
+            "Enter your full name (at least 2 characters).",
+
+        email:
+            "Enter a valid email address such as name@gmail.com.",
+
+        password:
+            "Password must be between 6 and 72 characters.",
+
+        phoneNumber:
+            "Enter a valid phone number for the selected country code.",
+
+        district:
+            "District is required."
+
+    };
+
+
+    /*
+     * COUNTRY PHONE LENGTHS
+     */
+
+    const countrySpecificLengths = {
+
+        "+1": {
+            min: 10,
+            max: 10
+        },
+
+        "+44": {
+            min: 10,
+            max: 10
+        },
+
+        "+61": {
+            min: 9,
+            max: 9
+        },
+
+        "+91": {
+            min: 10,
+            max: 10
+        },
+
+        "+971": {
+            min: 9,
+            max: 9
+        },
+
+        "+92": {
+            min: 10,
+            max: 10
+        },
+
+        "+27": {
+            min: 9,
+            max: 9
+        }
+
+    };
+
+
+    /*
+     * EMAIL DISPLAY HINT
+     *
+     * The @gmail.com text is ONLY visual.
+     *
+     * It is NOT inserted into the input.
+     *
+     * Example:
+     *
+     * Input value:
+     * kathrin
+     *
+     * Screen:
+     * kathrin       @gmail.com
+     */
+
+    function updateEmailHint() {
+
+        const value =
+            emailInput.value.trim();
+
+
+        if (!value.includes("@")) {
+
+            emailHint.style.display = "block";
+
+            emailHintText.style.display = "block";
+
+        } else {
+
+            emailHint.style.display = "none";
+
+            emailHintText.style.display = "none";
+
+        }
+
+    }
+
+
+    /*
+     * EMAIL NORMALIZATION
+     *
+     * This runs ONLY when the user
+     * clicks Create account.
+     */
+
+    function normalizeEmailForSubmit() {
+
+        const value =
+            emailInput.value.trim();
+
+
+        if (!value) {
+            return "";
+        }
+
+
+        /*
+         * User already entered a complete
+         * email address.
+         *
+         * Example:
+         * kathrin@yahoo.com
+         *
+         * Keep it unchanged except lowercase.
+         */
+
+        if (value.includes("@")) {
+
+            return value.toLowerCase();
+
+        }
+
+
+        /*
+         * User entered only:
+         *
+         * kathrin
+         *
+         * Backend receives:
+         *
+         * kathrin@gmail.com
+         */
+
+        return value.toLowerCase() + "@gmail.com";
+
+    }
+
+
+    /*
+     * FIELD STATE
+     */
+
+    function setFieldState(
+        field,
+        isValid,
+        messageText
+    ) {
+
+        const error =
+            document.getElementById(
+                field.id + "Error"
+            );
+
+
+        if (!error) {
+            return;
+        }
+
+
+        error.textContent =
+            messageText || "";
+
+
+        field.classList.toggle(
+            "invalid",
+            !isValid
+        );
+
+
+        field.setAttribute(
+            "aria-invalid",
+            String(!isValid)
+        );
+
+    }
+
+
+    /*
+     * FIELD VALIDATION
+     */
+
+    function validateField(field) {
+
+        const id =
+            field.id;
+
+        const value =
+            field.value.trim();
+
+
+        /*
+         * USERNAME
+         */
+
+        if (id === "username") {
+
+            const valid =
+                /^.{3,20}$/.test(value) &&
+                /^[A-Za-z0-9._-]+$/.test(value);
+
+
+            setFieldState(
+                field,
+                valid,
+                valid
+                    ? ""
+                    : validationRules.username
+            );
+
+
+            return valid;
+
+        }
+
+
+        /*
+         * FULL NAME
+         */
+
+        if (id === "fullName") {
+
+            const valid =
+                value.length >= 2 &&
+                value.length <= 100;
+
+
+            setFieldState(
+                field,
+                valid,
+                valid
+                    ? ""
+                    : validationRules.fullName
+            );
+
+
+            return valid;
+
+        }
+
+
+        /*
+         * EMAIL
+         */
+
+        if (id === "email") {
+
+            /*
+             * Complete email
+             *
+             * Example:
+             * kathrin@gmail.com
+             */
+
+            const completeEmailValid =
+                /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/i
+                    .test(value);
+
+
+            /*
+             * Username-only format
+             *
+             * Example:
+             * kathrin
+             */
+
+            const usernameOnlyValid =
+                /^[A-Za-z0-9._%+-]+$/.test(value);
+
+
+            /*
+             * Either is acceptable while typing.
+             *
+             * If username only:
+             * @gmail.com will be added
+             * during submission.
+             */
+
+            const finalValid =
+                completeEmailValid ||
+                usernameOnlyValid;
+
+
+            setFieldState(
+                field,
+                finalValid,
+                finalValid
+                    ? ""
+                    : validationRules.email
+            );
+
+
+            return finalValid;
+
+        }
+
+
+        /*
+         * PASSWORD
+         */
+
+        if (id === "password") {
+
+            const valid =
+                value.length >= 6 &&
+                value.length <= 72;
+
+
+            setFieldState(
+                field,
+                valid,
+                valid
+                    ? ""
+                    : validationRules.password
+            );
+
+
+            return valid;
+
+        }
+
+
+        /*
+         * PHONE
+         */
+
+        if (id === "phoneNumber") {
+
+            const digits =
+                field.value.replace(
+                    /\D/g,
+                    ""
+                );
+
+
+            const rule =
+                countrySpecificLengths[
+                    countryCode.value
+                ] ||
+                {
+                    min: 7,
+                    max: 15
+                };
+
+
+            const valid =
+                digits.length >= rule.min &&
+                digits.length <= rule.max &&
+                digits.length > 0;
+
+
+            setFieldState(
+                field,
+                valid,
+                valid
+                    ? ""
+                    : validationRules.phoneNumber
+            );
+
+
+            return valid;
+
+        }
+
+
+        /*
+         * DISTRICT
+         */
+
+        if (id === "district") {
+
+            const valid =
+                value.length >= 2 &&
+                value.length <= 100 &&
+                /^[A-Za-z0-9 .,'-]+$/.test(value);
+
+
+            setFieldState(
+                field,
+                valid,
+                valid
+                    ? ""
+                    : validationRules.district
+            );
+
+
+            return valid;
+
+        }
+
+
+        /*
+         * ADDRESS
+         */
+
+        if (id === "address") {
+
+            const valid =
+                value.length === 0 ||
+                value.length <= 255;
+
+
+            setFieldState(
+                field,
+                valid,
+                valid
+                    ? ""
+                    : "Address must not exceed 255 characters."
+            );
+
+
+            return valid;
+
+        }
+
+
+        return true;
+
+    }
+
+
+    /*
+     * FIELD VALIDATION EVENTS
+     */
+
+    [
+        "username",
+        "fullName",
+        "email",
+        "password",
+        "phoneNumber",
+        "district",
+        "address"
+
+    ].forEach(function (fieldId) {
+
+        const field =
+            document.getElementById(
+                fieldId
+            );
+
+
+        field.addEventListener(
+            "input",
+            function () {
+
+                validateField(field);
+
+
+                /*
+                 * Update the visual
+                 * @gmail.com hint.
+                 */
+
+                if (fieldId === "email") {
+
+                    updateEmailHint();
+
+                }
+
+            }
+        );
+
+
+        field.addEventListener(
+            "blur",
+            function () {
+
+                validateField(field);
+
+            }
+        );
+
+    });
+
+
+    /*
+     * PHONE COUNTRY CODE
+     */
+
+    countryCode.addEventListener(
+        "change",
+        function () {
+
+            validateField(
+                document.getElementById(
+                    "phoneNumber"
+                )
+            );
+
+        }
+    );
+
+
+    /*
+     * PASSWORD SHOW / HIDE
+     */
+
+    passwordToggle.addEventListener(
+        "click",
+        function () {
+
+            const passwordField =
+                document.getElementById(
+                    "password"
+                );
+
+
+            const isPassword =
+                passwordField.type ===
+                "password";
+
+
+            passwordField.type =
+                isPassword
+                    ? "text"
+                    : "password";
+
+
+            passwordToggle.textContent =
+                isPassword
+                    ? "🙈"
+                    : "👁";
+
+
+            passwordToggle.setAttribute(
+                "aria-label",
+                isPassword
+                    ? "Hide password"
+                    : "Show password"
+            );
+
+        }
+    );
+
+
+    /*
+     * CLEAR SERVER ERRORS
+     */
+
+    function clearServerErrors() {
+
+        [
+            "username",
+            "fullName",
+            "email",
+            "password",
+            "phoneNumber",
+            "district",
+            "address"
+
+        ].forEach(function (fieldId) {
+
+            const field =
+                document.getElementById(
+                    fieldId
+                );
+
+
+            if (field) {
+
+                field.classList.remove(
+                    "invalid"
+                );
+
+
+                field.removeAttribute(
+                    "aria-invalid"
+                );
+
+
+                const error =
+                    document.getElementById(
+                        fieldId + "Error"
+                    );
+
+
+                if (error) {
+
+                    error.textContent = "";
+
+                }
+
+            }
+
+        });
+
+    }
+
+
+    /*
+     * SHOW SERVER ERRORS
+     */
+
+    function showServerErrors(data) {
+
+        if (
+            !data ||
+            !data.fieldErrors
+        ) {
+
+            return;
+
+        }
+
+
+        Object.entries(
+            data.fieldErrors
+        ).forEach(function (
+            [fieldName, errorMessage]
+        ) {
+
+            const field =
+                document.getElementById(
+                    fieldName
+                );
+
+
+            if (!field) {
+                return;
+            }
+
+
+            setFieldState(
+                field,
+                false,
+                errorMessage
+            );
+
+        });
+
+    }
+
+
+    /*
+     * FORM SUBMISSION
+     */
+
+    form.addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
+
+
+            /*
+             * Validate required fields.
+             */
+
+            const requiredFields = [
+
+                "username",
+                "fullName",
+                "email",
+                "password",
+                "phoneNumber",
+                "district"
+
+            ];
+
+
+            const isValid =
+                requiredFields.every(
+                    function (fieldId) {
+
+                        return validateField(
+                            document.getElementById(
+                                fieldId
+                            )
+                        );
+
+                    }
+                );
+
+
+            if (!isValid) {
+
+                message.textContent =
+                    "Please correct the highlighted fields.";
+
+
+                message.classList.add(
+                    "error-message"
+                );
+
+
+                return;
+
+            }
+
+
+            /*
+             * IMPORTANT
+             *
+             * @gmail.com is added HERE.
+             *
+             * NOT while typing.
+             * NOT on blur.
+             * NOT when clicking another field.
+             *
+             * ONLY when Register is clicked.
+             */
+
+            const finalEmail =
+                normalizeEmailForSubmit();
+
+
+            /*
+             * CREATE REQUEST PAYLOAD
+             */
+
+            const payload = {
+
+                username:
+                    document.getElementById(
+                        "username"
+                    ).value.trim(),
+
+
+                fullName:
+                    document.getElementById(
+                        "fullName"
+                    ).value.trim(),
+
+
+                email:
+                    finalEmail,
+
+
+                password:
+                    document.getElementById(
+                        "password"
+                    ).value,
+
+
+                phoneNumber:
+                    document.getElementById(
+                        "phoneNumber"
+                    ).value.replace(
+                        /\D/g,
+                        ""
+                    ),
+
+
+                countryCode:
+                    countryCode.value,
+
+
+                district:
+                    document.getElementById(
+                        "district"
+                    ).value.trim(),
+
+
+                address:
+                    document.getElementById(
+                        "address"
+                    ).value.trim()
+
+            };
+
+
+            /*
+             * Clear previous message.
+             */
+
+            message.textContent = "";
+
+            message.classList.remove(
+                "error-message"
+            );
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/auth/register",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    payload
+                                )
+                        }
+                    );
+
+
+                const data =
+                    await response.json()
+                        .catch(
+                            function () {
+                                return {};
+                            }
+                        );
+
+
+                /*
+                 * SUCCESS
+                 */
+
+                if (response.ok) {
+
+                    window.location.href =
+                        "/login.html";
+
+                    return;
+
+                }
+
+
+                /*
+                 * SERVER ERROR
+                 */
+
+                clearServerErrors();
+
+                showServerErrors(
+                    data
+                );
+
+
+                message.textContent =
+                    data.message ||
+                    "Registration failed.";
+
+
+                message.classList.add(
+                    "error-message"
+                );
+
+            }
+
+
+            catch (error) {
+
+                message.textContent =
+                    "Registration failed. Please check that the application is running.";
+
+
+                message.classList.add(
+                    "error-message"
+                );
+
+            }
+
+        }
+    );
+
+
+
+    updateEmailHint();
+
+</script>
+
+
+<style>
+    .email-field {
+        position: relative;
+        width: 100%;
+    }
+
+
+    .email-field input {
+        width: 100%;
+        box-sizing: border-box;
+
+        padding-right: 100px;
+    }
+
+
+    .email-suffix {
+        position: absolute;
+
+        right: 12px;
+        top: 50%;
+
+        transform: translateY(-50%);
+
+        color: #888;
+
+        font-size: 14px;
+
+        pointer-events: none;
+
+        white-space: nowrap;
+
+        user-select: none;
+    }
+
+
+    .email-help {
+        display: block;
+
+        margin-top: 6px;
+
+        font-size: 12px;
+
+        color: #777;
+    }
+
+</style>
+
+
+</body>
+
+</html>

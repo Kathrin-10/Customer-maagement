@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Projects | Dynamic Dudes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="customer-page">
+    <div class="app-shell">
+        <aside class="sidebar">
+            <a class="brand" href="/dashboard.html">
+                <span class="brand-mark">D</span>
+                <span>Dynamic <span class="brand-muted">Dudes</span></span>
+            </a>
+            <nav class="side-nav" aria-label="Primary navigation">
+                <a href="/dashboard.html">
+                    <span>⌂</span>Dashboard</a>
+                <a class="active" href="/projects.html">
+                    <span>▦</span>My Projects</a>
+                <a href="/register-project.html">
+                    <span>＋</span>Register Project</a>
+                <a href="/profile.html">
+                    <span>◉</span>My Profile</a>
+            </nav>
+                <a class="side-logout" href="/logout">
+                    <span>↪</span>Logout</a>
+        </aside>
+        <main class="portal-main">
+            <div class="portal-page-title">
+                <p class="overline">Your work</p>
+                <h1>My Projects</h1>
+                    <p class="subtitle">Track progress, deadlines, and payments for every project.</p>
+            </div>
+            <section id="allProjects" class="project-grid">
+                <p class="loading-state">Loading projects...</p>
+            </section>
+        </main>
+
+<script src="/js/date-utils.js"></script>
+
+
+<script>
+
+const money =
+    new Intl.NumberFormat(
+        "en-IN",
+        {
+            style: "currency",
+            currency: "INR",
+            maximumFractionDigits: 0
+        }
+    );
+
+
+const statusClass =
+    status =>
+        String(
+            status || "PENDING"
+        ).toLowerCase();
+
+
+const statusLabel =
+    status =>
+        String(
+            status || "PENDING"
+        ).replace("_", " ");
+
+
+fetch("/api/customer/projects")
+
+    .then(response => {
+
+        if (!response.ok) {
+            throw new Error();
+        }
+
+        return response.json();
+    })
+
+    .then(projects => {
+
+        document.getElementById("allProjects").innerHTML =
+
+            projects
+                .map(project => {
+
+                    const budget =
+                        Number(
+                            project.budget ||
+                            project.amount ||
+                            0
+                        );
+
+
+                    const advance =
+                        Number(
+                            project.advanceAmount ||
+                            0
+                        );
+
+
+                    const percent =
+                        budget
+                            ? Math.round(
+                                advance / budget * 100
+                            )
+                            : 0;
+
+
+                    return `
+
+                        <article class="project-tile project-tile-large">
+
+                            <div class="project-tile-head">
+
+                                <div>
+
+                                    <h2>
+                                        ${project.title ||
+                                        "Untitled project"}
+                                    </h2>
+
+                                    <span>
+                                        ${project.category ||
+                                        "Project"}
+                                    </span>
+
+                                </div>
+
+
+                                <b class="project-status ${
+                                    statusClass(project.status)
+                                }">
+
+                                    ${statusLabel(project.status)}
+
+                                </b>
+
+                            </div>
+
+
+                            <p class="project-description">
+
+                                ${project.report ||
+                                "Project requirements are being prepared."}
+
+                            </p>
+
+
+                            <div class="project-progress">
+
+                                <span
+                                    style="width:${percent}%">
+                                </span>
+
+                            </div>
+
+
+                            <div class="project-tile-meta">
+
+                                <span>
+
+                                    Due ${
+                                        project.dueDate
+                                            ? formatDate(project.dueDate)
+                                            : "Not set"
+                                    }
+
+                                </span>
+
+
+                                <strong>
+                                    ${money.format(budget)}
+                                </strong>
+
+                            </div>
+
+
+                            <small>
+
+                                ${
+                                    project.assignedCustomerName
+                                        ? "Assigned to " +
+                                          project.assignedCustomerName
+                                        : "Awaiting project assignment"
+                                }
+
+                                · ${percent}% paid
+
+                            </small>
+
+
+                            <div class="modal-actions" style="margin-top:18px">
+                                <a href="/project-details.html?id=${project.id}" class="button">View Project</a>
+                                ${budget > advance ? `<a href="/payment.html?projectId=${project.id}" class="button secondary">Make Payment</a>` : ""}
+                            </div>
+
+                        </article>
+
+                    `;
+
+                })
+                .join("")
+
+            ||
+
+            '<p class="empty-state">' +
+            'No projects registered yet. ' +
+            '<a href="/register-project.html">' +
+            'Register a project' +
+            '</a>.' +
+            '</p>';
+
+    })
+
+    .catch(() => {
+
+        document.getElementById("allProjects").innerHTML =
+            '<p class="error-message">' +
+            'Unable to load your projects.' +
+            '</p>';
+
+    });
+
+</script>
+
+</main></div></body></html>

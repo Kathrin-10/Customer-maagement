@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Dynamic Dudes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="customer-page">
+    <div class="app-shell">
+        <aside class="sidebar">
+            <a class="brand" href="/dashboard.html">
+                <span class="brand-mark">D</span>
+                <span>Dynamic <span class="brand-muted">Dudes</span></span>
+            </a>
+            <nav class="side-nav" aria-label="Primary navigation">
+                <a class="active" href="/dashboard.html"><span>⌂</span>Dashboard</a>
+                <a href="/projects.html"><span>▦</span>My Projects</a>
+                <a href="/register-project.html"><span>＋</span>Register Project</a>
+                <a href="/profile.html"><span>◉</span>My Profile</a><a href="/payment.html"><span>₹</span>Payments</a>
+            </nav>
+            <a class="side-logout" href="/logout"><span>↪</span>Logout</a>
+        </aside><main class="portal-main">
+            <section class="portal-welcome">
+            <div>
+                <p class="overline">Client portal</p>
+                <h1>Good morning, <span id="customerName">there</span> 👋</h1>
+                <p>Here's what's happening with your projects.</p>
+            </div>
+            <div class="portal-identity">
+                <span>Customer ID</span>
+                <strong id="customerId">#CUS-0000</strong>
+                <span>Account <b id="accountStatus" class="account-active">● Active</b></span>
+            </div>
+        </section>
+        <section class="portal-stats">
+            <article>
+                <span class="portal-stat-icon purple">▦</span>
+                <span>Total Projects</span>
+                <strong id="totalProjects">0</strong>
+            </article>
+            <article>
+                <span class="portal-stat-icon violet">◌</span>
+                <span>In Progress</span><strong id="inProgress">0</strong>
+            </article>
+            <article>
+                <span class="portal-stat-icon green">✓</span>
+                <span>Completed</span><strong id="completed">0</strong>
+            </article>
+            <article>
+                <span class="portal-stat-icon blue">◷</span>
+                <span>Upcoming</span><strong id="upcoming">0</strong>
+            </article>
+        </section>
+        <div class="portal-grid">
+            <section class="portal-card">
+                <div class="portal-section-head">
+                    <div><h2>My Projects</h2><p>Your latest registered projects</p>
+                    </div><a href="/projects.html" class="text-link">View all →</a></div><div id="projectCards" class="project-card-list"><p class="loading-state">Loading projects...</p></div></section><aside class="portal-card"><div class="portal-section-head"><div><h2>Upcoming</h2><p>Next deadlines</p></div></div><div id="upcomingList" class="deadline-list"></div></aside></div>
+<section class="portal-card financial-card">
+    <div class="portal-section-head">
+        <div><h2>Project Financials</h2>
+            <p>Payment summary for your projects</p>
+        </div>
+        <span id="paymentPercent" class="trend-badge">0% paid</span>
+    </div>
+    <div class="financial-values">
+        <div><span>Total budget</span>
+            <strong id="budget">₹0</strong>
+        </div>
+        <div>
+            <span>Advance paid</span>
+            <strong id="advance">₹0</strong>
+        </div>
+        <div>
+            <span>Remaining</span><strong id="remaining">₹0</strong>
+        </div>
+    </div>
+    <div class="payment-track">
+        <span id="paymentBar"></span>
+    </div>
+</section></main></div>
+<script src="/js/date-utils.js"></script>
+
+<script>
+    const money = new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 0
+    });
+
+    const $ = id => document.getElementById(id);
+
+    const statusClass = s =>
+        String(s || "PENDING")
+            .toLowerCase()
+            .replace("pending", "pending")
+            .replace("in_progress", "in-progress");
+
+    const statusLabel = s =>
+        String(s || "PENDING").replace("_", " ");
+
+    function render(projects) {
+        const counts = {
+            total: projects.length,
+            in: 0,
+            completed: 0,
+            upcoming: 0
+        };
+
+        projects.forEach(p => {
+            const s = String(p.status || "").toUpperCase();
+
+            if (s === "COMPLETED") {
+                counts.completed++;
+            } else if (s === "UPCOMING") {
+                counts.upcoming++;
+            } else {
+                counts.in++;
+            }
+        });
+
+        $("totalProjects").textContent = counts.total;
+        $("inProgress").textContent = counts.in;
+        $("completed").textContent = counts.completed;
+        $("upcoming").textContent = counts.upcoming;
+
+        const sorted = [...projects].sort((a, b) =>
+            String(a.dueDate).localeCompare(String(b.dueDate))
+        );
+
+        $("projectCards").innerHTML =
+            sorted
+                .slice(0, 3)
+                .map(p => {
+                    const budget = Number(
+                        p.budget || p.amount || 0
+                    );
+
+                    const paid = Number(
+                        p.advanceAmount || 0
+                    );
+
+                    const percent = budget
+                        ? Math.min(
+                              100,
+                              Math.round((paid / budget) * 100)
+                          )
+                        : 0;
+
+                    return `
+                        <article class="project-tile">
+
+                            <div class="project-tile-head">
+                                <div>
+                                    <h3>
+                                        ${p.title || "Untitled project"}
+                                    </h3>
+
+                                    <span>
+                                        ${p.category || "Project"}
+                                    </span>
+                                </div>
+
+                                <b class="project-status ${statusClass(p.status)}">
+                                    ${statusLabel(p.status)}
+                                </b>
+                            </div>
+
+                            <div class="project-progress">
+                                <span style="width:${percent}%"></span>
+                            </div>
+
+                            <div class="project-tile-meta">
+                                <span>
+                                    Due ${p.dueDate ? formatDate(p.dueDate) : "Not set"}
+                                </span>
+
+                                <strong>
+                                    ${money.format(budget)}
+                                </strong>
+                            </div>
+
+                            <a
+                                href="/project-details.html?id=${p.id}"
+                                class="text-link"
+                            >
+                                View project →
+                            </a>
+
+                        </article>
+                    `;
+                })
+                .join("") ||
+            `
+                <p class="empty-state">
+                    No projects registered yet.
+                    <a href="/register-project.html">
+                        Register your first project
+                    </a>.
+                </p>
+            `;
+
+        $("upcomingList").innerHTML =
+            sorted
+                .filter(p => p.status !== "COMPLETED")
+                .slice(0, 4)
+                .map(p => {
+                    return `
+                        <div class="deadline-item">
+                            <strong>
+                                ${p.dueDate ? formatDate(p.dueDate) : "—"}
+                            </strong>
+
+                            <span>
+                                ${p.title || "Untitled project"}
+                            </span>
+
+                            <small>
+                                ${p.status || "Pending"}
+                            </small>
+                        </div>
+                    `;
+                })
+                .join("") ||
+            `
+                <p class="empty-state">
+                    No upcoming deadlines.
+                </p>
+            `;
+
+        const budget = projects.reduce(
+            (n, p) =>
+                n + Number(p.budget || p.amount || 0),
+            0
+        );
+
+        const advance = projects.reduce(
+            (n, p) =>
+                n + Number(p.advanceAmount || 0),
+            0
+        );
+
+        const percent = budget
+            ? Math.round((advance / budget) * 100)
+            : 0;
+
+        $("budget").textContent =
+            money.format(budget);
+
+        $("advance").textContent =
+            money.format(advance);
+
+        $("remaining").textContent =
+            money.format(
+                Math.max(0, budget - advance)
+            );
+
+        $("paymentPercent").textContent =
+            percent + "% paid";
+
+        $("paymentBar").style.width =
+            percent + "%";
+    }
+
+    async function load() {
+        try {
+            const [
+                profileResponse,
+                projectsResponse
+            ] = await Promise.all([
+                fetch("/api/customer/profile"),
+                fetch("/api/customer/projects")
+            ]);
+
+            if (
+                !profileResponse.ok ||
+                !projectsResponse.ok
+            ) {
+                location.href = "/login.html";
+                return;
+            }
+
+            const profile =
+                await profileResponse.json();
+
+            const projects =
+                await projectsResponse.json();
+
+            $("customerName").textContent =
+                (
+                    profile.fullName ||
+                    profile.username ||
+                    "there"
+                ).split(" ")[0];
+
+            $("customerId").textContent =
+                "#CUS-" +
+                String(profile.id).padStart(4, "0");
+
+            $("accountStatus").textContent =
+                "● " + (profile.status || "ACTIVE");
+
+            render(projects);
+
+        } catch (e) {
+            $("projectCards").innerHTML = `
+                <p class="error-message">
+                    Unable to load your projects.
+                </p>
+            `;
+        }
+    }
+
+    load();
+</script>
+</body>
+</html>

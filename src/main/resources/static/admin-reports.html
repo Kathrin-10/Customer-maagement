@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Reports | Dynamic Dudes</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/styles.css"></head>
+<body class="admin-dashboard"><div class="app-shell"><aside class="sidebar"><a class="brand" href="/admin.html"><span class="brand-mark">D</span><span>Dynamic <span class="brand-muted">Dudes</span></span></a><nav class="side-nav"><a href="/admin.html"><span>⌂</span>Dashboard</a><a href="/admin-customers.html"><span>♙</span>Customers</a><a href="/admin-projects.html"><span>▦</span>Projects</a><a class="active" href="/admin-reports.html"><span>▥</span>Reports</a><a href="/admin-profile.html"><span>◉</span>Admin Profile</a></nav><a class="side-logout" href="/logout"><span>↪</span>Logout</a></aside>
+<main class="dashboard-main">
+    <header class="dashboard-header">
+        <div>
+            <p class="overline">Financial overview</p>
+            <h1>Reports</h1>
+            <p class="subtitle">Revenue and payment activity from actual project payments.</p>
+        </div><button id="refresh" class="button secondary" type="button">↻ Refresh</button>
+    </header>
+    <section class="stats-grid report-stats">
+        <article class="stat-card">
+            <span class="stat-icon purple">₹</span>
+            <div>
+                <span class="stat-label">Total Budget</span><strong id="budget">₹0</strong><small>All recorded projects</small>
+            </div>
+        </article>
+        <article class="stat-card">
+            <span class="stat-icon green">↗</span>
+            <div>
+                <span class="stat-label">Advance Paid</span><strong id="advance">₹0</strong><small>Payments received</small>
+            </div>
+        </article>
+        <article class="stat-card">
+            <span class="stat-icon violet">◷</span>
+            <div>
+                <span class="stat-label">Pending Payment</span><strong id="pendingPayment">₹0</strong><small>Budget less advance</small>
+            </div>
+        </article>
+    </section>
+    <section class="activity-card report-chart-card">
+        <div class="section-heading">
+            <div>
+                <h2>Revenue Details</h2>
+                <p>Payment totals grouped by recorded payment date for every month</p>
+            </div>
+            <span id="reportSummary" class="trend-badge">Loading...</span>
+        </div>
+        <div class="chart-frame">
+            <div id="revenueYAxis" class="activity-y-axis"></div>
+            <div id="revenueChart" class="activity-chart" aria-label="Monthly revenue chart"></div>
+        </div>
+    </section>
+    <section class="directory-card report-table-card">
+        <div class="directory-heading">
+            <div>
+                <h2>Project Payments</h2>
+                <p>Budget, advance, and pending amounts by project</p>
+            </div>
+        </div>
+        <div class="table-scroll">
+            <table class="customer-table project-table">
+                <thead>
+                    <tr>
+                        <th>Project</th>
+                        <th>Client</th>
+                        <th>Payment date</th>
+                        <th>Budget</th>
+                        <th>Advance paid</th>
+                        <th>Pending</th>
+                    </tr>
+                </thead>
+                <tbody id="projectPayments">
+                    <tr>
+                        <td colspan="6" class="empty-state">Loading payments...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main></div>
+
+<script src="/js/date-utils.js"></script>
+
+
+<script>
+const money = new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0
+});
+
+const format = value =>
+    money.format(Number(value || 0));
+
+function renderRevenue(data) {
+
+    const entries = data.yearlyRevenue || [];
+
+    const values =
+        entries.map(e => Number(e.amount || 0));
+
+    const max =
+        Math.max(...values, 1);
+
+    const step =
+        Math.max(Math.ceil(max / 4), 1);
+
+    const axisMax =
+        step * 4;
+
+    document.getElementById("revenueYAxis")
+        .innerHTML =
+            Array.from(
+                { length: 5 },
+                (_, i) =>
+                    `<span>${format(step * (4 - i))}</span>`
+            ).join("");
+
+    document.getElementById("revenueChart")
+        .innerHTML =
+            entries.map(e => `
+                <div class="activity-bar">
+
+                    <span
+                        title="${format(e.amount)}"
+                        style="height:${
+                            Number(e.amount)
+                                ? Math.max(
+                                    Number(e.amount)
+                                    / axisMax * 100,
+                                    8
+                                )
+                                : 0
+                        }%">
+                    </span>
+
+                    <small>${e.month}</small>
+
+                </div>
+            `).join("");
+
+    const total =
+        values.reduce(
+            (a, b) => a + b,
+            0
+        );
+
+    document.getElementById("reportSummary")
+        .textContent =
+            `${format(total)} recorded this year`;
+}
+
+async function load() {
+
+    try {
+
+        const [
+            projectsResponse,
+            revenueResponse
+        ] = await Promise.all([
+            fetch("/api/admin/projects"),
+            fetch("/api/admin/revenue/summary")
+        ]);
+
+        if (
+            !projectsResponse.ok ||
+            !revenueResponse.ok
+        ) {
+            location.href =
+                "/admin-login.html";
+
+            return;
+        }
+
+        const projects =
+            await projectsResponse.json();
+
+        const revenue =
+            await revenueResponse.json();
+
+        let budget = 0;
+        let advance = 0;
+
+        projects.forEach(project => {
+
+            const b =
+                Number(
+                    project.budget ||
+                    project.amount ||
+                    0
+                );
+
+            const a =
+                Number(
+                    project.advanceAmount ||
+                    0
+                );
+
+            budget += b;
+            advance += a;
+        });
+
+        document.getElementById("budget")
+            .textContent =
+                format(budget);
+
+        document.getElementById("advance")
+            .textContent =
+                format(advance);
+
+        document.getElementById("pendingPayment")
+            .textContent =
+                format(budget - advance);
+
+        document.getElementById("projectPayments")
+            .innerHTML =
+                projects.length
+
+                    ? projects.map(project => {
+
+                        const b =
+                            Number(
+                                project.budget ||
+                                project.amount ||
+                                0
+                            );
+
+                        const a =
+                            Number(
+                                project.advanceAmount ||
+                                0
+                            );
+
+                        return `
+                            <tr>
+
+                                <td>
+                                    <strong>
+                                        ${
+                                            project.title ||
+                                            "Untitled project"
+                                        }
+                                    </strong>
+
+                                    <small>
+                                        ${
+                                            project.category ||
+                                            ""
+                                        }
+                                    </small>
+                                </td>
+
+                                <td>
+                                    ${
+                                        project.clientName ||
+                                        "Unknown client"
+                                    }
+                                </td>
+
+                                <td>
+                                    ${formatDate(
+                                        project.lastPaymentDate ||
+                                        project.registeredAt ||
+                                        project.dueDate
+                                    )}
+                                </td>
+
+                                <td>
+                                    ${format(b)}
+                                </td>
+
+                                <td>
+                                    ${format(a)}
+                                </td>
+
+                                <td>
+                                    ${format(b - a)}
+                                </td>
+
+                            </tr>
+                        `;
+                    }).join("")
+
+                    : `
+                        <tr>
+                            <td
+                                colspan="6"
+                                class="empty-state">
+                                No project payments recorded.
+                            </td>
+                        </tr>
+                    `;
+
+        renderRevenue(revenue);
+
+    } catch (error) {
+
+        document.getElementById(
+            "reportSummary"
+        ).textContent =
+            "Report unavailable";
+    }
+}
+
+document.getElementById("refresh").onclick = load;
+load();
+</script>
+</body></html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Dudes | Customer Login</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="login-page">
+    <header class="topbar" style="position:fixed;top:0;left:0;right:0"><h1>Dynamic Dudes – Digital Marketing</h1><nav><a href="/admin-login.html">Admin login</a></nav></header>
+    <main class="login-card">
+        <h1>Dynamic Dudes</h1>
+        <h2>Customer Login</h2>
+
+        <form id="loginForm" novalidate>
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" autocomplete="username" required>
+
+            <label for="password">Password</label>
+            <div class="password-field">
+                <input type="password" id="password" name="password" autocomplete="current-password" required>
+                <button type="button" class="toggle-password" aria-label="Show password">👁</button>
+            </div>
+
+            <button type="submit">Login</button>
+        </form>
+
+        <p id="message" class="error-message" role="alert"></p>
+        <p>New customer? <a href="/register.html">Create an account</a></p>
+    </main>
+
+    <script>
+        const passwordField = document.getElementById("password");
+        const passwordToggle = document.querySelector(".toggle-password");
+        const message = document.getElementById("message");
+
+        passwordToggle.addEventListener("click", function () {
+            const isHidden = passwordField.type === "password";
+            passwordField.type = isHidden ? "text" : "password";
+            passwordToggle.textContent = isHidden ? "🙈" : "👁";
+            passwordToggle.setAttribute("aria-label", isHidden ? "Hide password" : "Show password");
+        });
+
+        document.getElementById("loginForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
+            const form = event.target;
+            message.textContent = "";
+            message.classList.remove("error-message");
+
+            const body = new URLSearchParams(new FormData(form));
+            body.set("username", document.getElementById("username").value.trim());
+
+            try {
+                const response = await fetch("/api/auth/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: body,
+                    credentials: "same-origin"
+                });
+
+                if (!response.ok || new URL(response.url, window.location.origin).pathname === "/login") {
+                    message.textContent = "Invalid username or password.";
+                    message.classList.add("error-message");
+                    return;
+                }
+
+                const userResponse = await fetch("/api/auth/me", {
+                    credentials: "same-origin"
+                });
+                if (!userResponse.ok) {
+                    throw new Error("The login session could not be verified.");
+                }
+                const currentUser = await userResponse.json();
+                window.location.href = currentUser.role === "ADMIN" ? "/admin.html" : "/dashboard.html";
+            } catch (error) {
+                message.textContent = "Login failed. Please check that the application is running.";
+                message.classList.add("error-message");
+            }
+        });
+    </script>
+</body>
+</html>
